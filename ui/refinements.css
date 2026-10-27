@@ -294,6 +294,10 @@ body[data-platform="android"] .received-content.has-content { min-height: 220px;
 .remote-note { color: #8590ac; font-size: 11px; line-height: 1.55; margin: auto 0 0; padding-top: 15px; }
 .remote-app-link { display: inline-flex; width: fit-content; font-size: 12px; font-weight: 700; color: #cdbdff; text-underline-offset: 4px; }
 .remote-app-link[hidden] { display: none; }
+.remote-root-status { margin: -4px 0 2px; color: #b2c1db; font-size: 11px; line-height: 1.55; }
+.remote-root-status[hidden] { display: none; }
+.remote-root-status[data-state="granted"] { color: var(--green); }
+.remote-root-status[data-state="denied"] { color: #ebacaa; }
 body[data-connected="true"][data-remote="active"] #remoteBadge { color: var(--green); border-color: rgba(154, 239, 193, .42); background: rgba(95, 183, 137, .12); }
 @media (max-width: 1050px) { .remote-layout { grid-template-columns: 1fr; } .remote-viewer { max-width: 390px; width: 100%; margin: auto; } }
 body[data-platform="android"] .remote-card { padding: 21px; border-radius: 20px; margin-top: 14px; }

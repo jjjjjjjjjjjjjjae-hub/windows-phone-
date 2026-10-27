@@ -8,13 +8,13 @@
   <meta name="description" content="Телефон мен ноутбукты қосып, мәтін мен сурет жібер және Android экранын басқар.">
   <title>Екі экран — құрылғылар</title>
   <link rel="stylesheet" href="style.css?v=origin1">
-  <link rel="stylesheet" href="refinements.css?v=remote1">
+  <link rel="stylesheet" href="refinements.css?v=root2">
   <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js" defer></script>
   <script src="vendor/qrcode.min.js" defer></script>
   <script src="vendor/jsQR.js" defer></script>
   <script src="effects.js?v=origin1" defer></script>
-  <script src="online.js?v=remote1" defer></script>
-  <script src="app.js?v=remote1" defer></script>
+  <script src="online.js?v=root2" defer></script>
+  <script src="app.js?v=root2" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -83,10 +83,12 @@
             <div class="remote-viewer" id="remoteViewer"><div id="remoteEmpty" class="remote-empty"><span aria-hidden="true">▯</span><strong>Телефон экраны осы жерде көрінеді</strong><p>Телефонда экранды бөлісуге рұқсат берілген соң.</p></div><img id="remoteScreen" alt="Телефонның тікелей экраны" draggable="false" hidden></div>
             <div class="remote-controls"><p id="remoteDescription">Алдымен телефонды қос, кейін басқаруға сұрау жібер.</p>
               <button id="requestRemote" class="primary full-button" type="button" disabled><span>Басқаруды сұрау</span><span aria-hidden="true">↗</span></button>
+              <button id="requestRoot" class="secondary full-button" type="button" hidden>Root рұқсатын сұрау ↗</button>
+              <p id="rootStatus" class="remote-root-status" role="status" aria-live="polite" hidden></p>
               <button id="openAccessibility" class="secondary full-button" type="button" hidden>Басқару рұқсатын ашу ↗</button>
               <button id="stopRemote" class="secondary full-button" type="button" hidden>Басқаруды тоқтату ↗</button>
               <div id="remoteActions" class="remote-actions" hidden><button id="remoteBack" type="button">← Артқа</button><button id="remoteHome" type="button">⌂ Басты бет</button><button id="remoteRecents" type="button">▣ Соңғы</button></div>
-              <p class="remote-note">Экранды бөлісу мен басу рұқсатын телефон иесі өзі қосады. Телефоннан кез келген уақытта тоқтата аласың.</p>
+              <p class="remote-note">Root қолданбаға толық жүйелік құқық береді. Рұқсатты тек өз телефоныңда бер. Экран бөлісуін телефоннан кез келген уақытта тоқтата аласың.</p>
               <a id="androidAppLink" class="remote-app-link" href="https://github.com/jjjjjjjjjjjjjjae-hub/windows-phone-/actions/workflows/android.yml" target="_blank" rel="noopener" hidden>Android APK · Actions ↗</a>
             </div>
           </div><p id="remoteFeedback" class="feedback" role="status" aria-live="polite"></p>
@@ -118,6 +120,6 @@
   <input id="browserImageInput" type="file" accept="image/png,image/jpeg" hidden><canvas id="transferCanvas" aria-hidden="true"></canvas>
   <dialog id="trustDialog"><h2>Қауіпсіздік таңбасын салыстыр</h2><p>Ноутбуктағы таңбамен дәл сәйкес келе ме?</p><code id="trustFingerprint"></code><div class="dialog-actions"><button id="rejectTrust" class="secondary" type="button">Бас тарту</button><button id="confirmTrust" class="primary" type="button">Растау</button></div></dialog>
   <dialog id="onlineApproval"><div class="approval-symbol" aria-hidden="true">◇</div><h2>Телефон қосылғысы келеді</h2><p>Бұл өз телефоның болса, байланысқа рұқсат бер.</p><div class="dialog-actions"><button id="onlineReject" class="secondary" type="button">Қабылдамау</button><button id="onlineAccept" class="primary" type="button">Рұқсат беру</button></div></dialog>
-  <dialog id="remoteApproval"><div class="approval-symbol" aria-hidden="true">▯</div><h2>Экранды басқаруға рұқсат?</h2><p>Ноутбук телефон экранын көреді және басу мен сырғыту пәрмендерін жібере алады. Android жүйесі экранды бөлісуге бөлек рұқсат сұрайды.</p><div class="dialog-actions"><button id="remoteReject" class="secondary" type="button">Бас тарту</button><button id="remoteAccept" class="primary" type="button">Рұқсат беру</button></div></dialog>
+  <dialog id="remoteApproval"><div class="approval-symbol" aria-hidden="true">▯</div><h2>Экранды басқаруға рұқсат?</h2><p>Ноутбук телефон экранын көреді және басу мен сырғыту пәрмендерін жібере алады. Қолданба root рұқсатын тексереді; Android экранды бөлісуге бөлек рұқсат сұрайды.</p><div class="dialog-actions"><button id="remoteReject" class="secondary" type="button">Бас тарту</button><button id="remoteAccept" class="primary" type="button">Рұқсат беру</button></div></dialog>
 </body>
 </html>

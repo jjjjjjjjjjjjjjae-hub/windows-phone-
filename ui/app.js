@@ -11,7 +11,7 @@
   const historyItems = [];
   const pending = new Map();
   let sequence = 0, connected = false, mode = 'text', selectedImage = null, lastReceived = null, busy = false;
-  let remoteActive = false, nativeCapturePending = false;
+  let remoteActive = false, nativeCapturePending = false, rootState = 'idle';
   const phoneControlNative = window.PhoneControlNative?.postMessage ? window.PhoneControlNative : null;
   let connectedDevice = { name: platform === 'android' ? 'Ноутбук' : 'Телефон', os: platform === 'android' ? 'Ноутбук' : 'Телефон' };
   let pairingLink = '', cameraStream = null, cameraFrame = 0, cameraActive = false, qrStarted = false;
@@ -399,13 +399,15 @@
     $('requestRemote').disabled = !connected;
     $('stopRemote').hidden = !remoteActive;
     $('remoteActions').hidden = !remoteActive || platform !== 'windows';
+    $('requestRoot').hidden = platform !== 'android' || !phoneControlNative || remoteActive;
+    $('rootStatus').hidden = platform !== 'android' || !phoneControlNative;
     $('openAccessibility').hidden = platform !== 'android' || !phoneControlNative || remoteActive;
     $('androidAppLink').hidden = platform !== 'android' || Boolean(phoneControlNative);
     $('remoteDescription').textContent = remoteActive
       ? (platform === 'android' ? 'Экран ноутбукке көрсетіліп тұр. Осы жерден бірден тоқтата аласың.' : 'Экранды бас немесе сырғыт. Төмендегі батырмалар жүйелік әрекеттерді орындайды.')
       : !connected ? 'Алдымен телефонды қос, кейін басқаруға сұрау жібер.'
       : platform === 'windows' ? 'Телефон иесіне басқару сұрауын жібер. Ол экранды бөлісуге өзі рұқсат береді.'
-      : phoneControlNative ? 'Ноутбуктан сұрау келгенде телефондағы рұқсатты раста.'
+      : phoneControlNative ? 'Root рұқсатын сұра немесе Android басқару рұқсатын қос. Ноутбуктан сұрау келгенде раста.'
       : 'Толық экранды басқару үшін телефонға Android қолданбасын орнат.';
     if (!remoteActive) { $('remoteScreen').hidden = true; $('remoteEmpty').hidden = false; }
   }
@@ -413,6 +415,7 @@
     const shouldStop = remoteActive || nativeCapturePending;
     remoteActive = false; nativeCapturePending = false;
     if (stopNative && shouldStop && phoneControlNative) phoneControlNative.postMessage(JSON.stringify({ type: 'stop' }));
+    $('remoteScreen').removeAttribute('src');
     renderRemote();
   }
   $('requestRemote').onclick = () => {
@@ -420,6 +423,7 @@
     catch (error) { message(error.message, true, 'remoteFeedback'); }
   };
   $('stopRemote').onclick = () => { window.OnlineLink.stopRemote(); stopRemoteLocal(); message('Басқару тоқтатылды.', false, 'remoteFeedback'); };
+  $('requestRoot').onclick = () => phoneControlNative?.postMessage(JSON.stringify({ type: 'request-root' }));
   $('openAccessibility').onclick = () => phoneControlNative?.postMessage(JSON.stringify({ type: 'accessibility' }));
   $('remoteReject').onclick = () => { $('remoteApproval').close(); window.OnlineLink.denyRemote(); };
   $('remoteAccept').onclick = () => {
@@ -427,10 +431,21 @@
     if (!phoneControlNative) { window.OnlineLink.denyRemote(); return; }
     nativeCapturePending = true;
     phoneControlNative.postMessage(JSON.stringify({ type: 'start' }));
-    message('Android жүйесінің экран бөлісу рұқсатын раста.', false, 'remoteFeedback');
+    message('Root тексерісі мен Android экран бөлісу рұқсатын раста.', false, 'remoteFeedback');
   };
   $('remoteApproval').oncancel = () => window.OnlineLink.denyRemote();
   window.PhoneRemote = {
+    nativeRootStatus(value) {
+      rootState = ['checking', 'granted', 'denied'].includes(value) ? value : 'idle';
+      $('requestRoot').disabled = rootState === 'checking';
+      $('rootStatus').dataset.state = rootState;
+      $('rootStatus').textContent = {
+        checking: 'Root рұқсаты тексерілуде…',
+        granted: 'Root берілді. Басу мен сырғыту осы рұқсатпен орындалады.',
+        denied: 'Root берілмеді. Magisk → Superuser бөлімінен «Екі экранға» рұқсат бер немесе Android басқару рұқсатын қос.',
+        idle: ''
+      }[rootState];
+    },
     nativeStarted() {
       nativeCapturePending = false;
       if (!connected || !window.OnlineLink.approveRemote()) { phoneControlNative?.postMessage(JSON.stringify({ type: 'stop' })); return; }
@@ -493,7 +508,13 @@
         if ($('remoteApproval').open) $('remoteApproval').close();
         stopRemoteLocal(); message('Басқару тоқтатылды.', false, 'remoteFeedback');
       },
-      onRemoteFrame: frame => { $('remoteScreen').src = frame.image; $('remoteScreen').hidden = false; $('remoteEmpty').hidden = true; },
+      onRemoteFrame: frame => new Promise(resolve => {
+        const screen = $('remoteScreen');
+        screen.onload = () => { screen.hidden = false; $('remoteEmpty').hidden = true; resolve(); };
+        screen.onerror = () => resolve();
+        screen.src = frame.image;
+      }),
+      onRemoteFrameAck: () => phoneControlNative?.postMessage(JSON.stringify({ type: 'frame-ready' })),
       onRemoteAction: action => phoneControlNative?.postMessage(JSON.stringify({ type: 'gesture', ...action })),
       onNotice: (text, isError) => message(text, isError, 'pairFeedback'),
       onProgress: percent => message('Жіберілуде: ' + percent + '%'),
