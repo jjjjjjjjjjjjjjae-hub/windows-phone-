@@ -8,11 +8,12 @@
   <meta name="theme-color" content="#0b0d14">
   <title>Екі экран · Онлайн тасымал</title>
   <link rel="stylesheet" href="style.css?v=dock19">
+  <link rel="stylesheet" href="stellar.css?v=stellar20">
   <script src="effects.js?v=2" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js" defer></script>
   <script src="vendor/qrcode.min.js" defer></script>
   <script src="vendor/jsQR.js" defer></script><script src="online.js?v=vector16" defer></script>
-  <script src="app.js?v=motion18" defer></script>
+  <script src="app.js?v=stellar20" defer></script>
 </head>
 <body>
 <div class="ambient" aria-hidden="true"></div>
@@ -30,13 +31,14 @@
     <span class="version"><span class="version-dot"></span><span>0.3 / ONLINE</span></span>
   </aside>
   <main>
+    <div id="stellarSky" class="stellar-sky" aria-hidden="true"></div>
     <header><div class="mobile-brand"><span class="brand-mark gold-brand animated-infinity" aria-hidden="true"><img src="assets/bailanys-gold.jpg" alt="" width="250" height="64"><span class="infinity-reflection"></span></span></div><span id="environment" class="environment" hidden><i></i>Браузердегі демо</span></header>
     <div id="previewToolbar" class="preview-toolbar" hidden>
       <div class="preview-top"><strong>Құрылғылар арасында онлайн тасымал</strong><div class="preview-modes" role="group" aria-label="Құрылғы көрінісі"><button id="previewAndroid" aria-pressed="false">Телефон</button><button id="previewWindows" aria-pressed="false">Ноутбук</button></div></div>
       <p>Құрылғы түрі автоматты анықталады. Тек өз құрылғыңды қос.</p>
     </div>
     <section id="clipboard" class="page">
-      <div class="hero"><div class="eyebrow" id="pageEyebrow"><span></span>ТЕЛЕФОН ↔ НОУТБУК</div><h1>Бір сәт.<br><span>Екінші экранда.</span></h1><p class="subtitle" id="subtitle">Ойың, суретің, кодың. Бәрі бір қимылмен.</p><div class="hero-spark" aria-hidden="true">✳</div></div>
+      <div class="hero"><div class="stellar-status" role="status" aria-live="polite"><span class="stellar-led" aria-hidden="true"></span><span id="stellarLinkText">ҚОСЫЛУДЫ КҮТУДЕ</span><small>ЖЕКЕ АРНА</small></div><div class="eyebrow" id="pageEyebrow"><span></span>ТЕЛЕФОН ↔ НОУТБУК</div><h1>Бір сәт.<br><span>Екінші экранда.</span></h1><p class="subtitle" id="subtitle">Ойың, суретің, кодың. Бәрі бір қимылмен.</p><div class="hero-spark" aria-hidden="true">✳</div><div class="stellar-orbit" aria-hidden="true"><i></i></div></div>
       <div class="connection-strip"><div class="connection-symbol" aria-hidden="true">⌁</div><div><strong id="connectionHeading">Ноутбукке қосыл</strong><span id="connectionDescription">Интернет арқылы тікелей жұптастыру.</span></div><button class="text-button" id="openConnection">Қосылу <span>↗</span></button></div>
       <div class="workspace">
         <div class="transfer-card">
@@ -111,7 +113,7 @@
   <p class="form-note">Телефонмен QR сканерле, содан кейін ноутбукта «Рұқсат беру» батырмасын бас.</p>
   <input id="localAddresses" hidden><input id="fingerprint" hidden>
 </div><button class="secondary disconnect" id="disconnectButton">Байланысты ажырату</button><p id="pairFeedback" class="feedback" aria-live="polite"></p></section>
-    <section id="history" class="page" hidden><div class="eyebrow">КІШКЕНТАЙ СӘТТЕР</div><h1>Жіберу тарихы</h1><p class="subtitle">Соңғы 10 әрекет. Тек осы сессияда.</p><div id="historyList" class="history-list"><div class="empty-history"><span>◷</span><strong>Бәрі алғашқы сәттен басталады.</strong><p>Бір нәрсе жібер. Ізі осы жерде қалады.</p></div></div></section>
+    <section id="history" class="page" hidden><div class="stellar-history-kicker">СЕНІҢ ІЗІҢ</div><div class="eyebrow">КІШКЕНТАЙ СӘТТЕР</div><h1>Жіберу тарихы</h1><p class="subtitle">Соңғы 10 әрекет. Тек осы сессияда.</p><div id="historyList" class="history-list"><div class="empty-history"><span>◷</span><strong>Бәрі алғашқы сәттен басталады.</strong><p>Бір нәрсе жібер. Ізі осы жерде қалады.</p></div></div><button type="button" class="stellar-history-go" id="stellarHistoryGo">Алғашқы мәліметті жіберу <span aria-hidden="true">↗</span></button></section>
     <footer><span><i class="footer-dot"></i>Өз кеңістігіңде қал.</span><span class="footer-right">Android <b>↔</b> Windows</span></footer>
   </main>
 </div>
