@@ -15,6 +15,51 @@
   const sidebar = document.querySelector('.sidebar');
   let pairingLink = '';
   let qrAutoStarted = false;
+  let connectedPhone = { name: 'Телефон', os: 'Телефон' };
+  function drawConnectedDevices() {
+    const panel = $('connectedDevices');
+    if (!panel) return;
+    panel.hidden = platform !== 'windows';
+    const list = $('connectedDevicesList');
+    const count = $('connectedDevicesCount');
+    list.replaceChildren();
+    count.textContent = connected ? '1 құрылғы' : '0 құрылғы';
+    if (!connected) {
+      const empty = document.createElement('div');
+      empty.className = 'connected-device-empty';
+      const symbol = document.createElement('span');
+      symbol.className = 'connected-device-empty-icon';
+      symbol.textContent = '⌁';
+      symbol.setAttribute('aria-hidden', 'true');
+      const body = document.createElement('div');
+      const heading = document.createElement('strong');
+      heading.textContent = 'Әзірге құрылғы қосылмаған';
+      const description = document.createElement('p');
+      description.textContent = 'Телефонмен QR-кодты сканерлеп, ноутбукта қосылуды раста.';
+      body.append(heading, description);
+      empty.append(symbol, body);
+      list.append(empty);
+      return;
+    }
+    const row = document.createElement('div');
+    row.className = 'connected-device-row';
+    const icon = document.createElement('span');
+    icon.className = 'connected-device-phone-icon';
+    icon.textContent = '▯';
+    icon.setAttribute('aria-hidden', 'true');
+    const info = document.createElement('div');
+    info.className = 'connected-device-info';
+    const name = document.createElement('strong');
+    name.textContent = connectedPhone.name;
+    const details = document.createElement('span');
+    details.textContent = connectedPhone.os + ' · WebRTC шифрланған байланыс';
+    info.append(name, details);
+    const live = document.createElement('span');
+    live.className = 'connected-device-live';
+    live.textContent = '● Онлайн';
+    row.append(icon, info, live);
+    list.append(row);
+  }
   function renderPairQr(code) {
     pairingLink = '';
     const root = $('pairQr');
@@ -233,6 +278,7 @@
     $('previewAndroid').setAttribute('aria-pressed', String(phone));
     $('previewWindows').setAttribute('aria-pressed', String(!phone));
     arrangeNavigation();
+    drawConnectedDevices();
     if (browser) {
       const url = new URL(location.href);
       url.searchParams.set('platform', value);
@@ -248,6 +294,8 @@
 
   function state(data) {
     connected = Boolean(data.connected);
+    if (!connected) connectedPhone = { name: 'Телефон', os: 'Телефон' };
+    drawConnectedDevices();
     document.body.dataset.connected = String(connected);
     if (!connected) effects?.reset();
     const device = data.deviceName || (platform === 'windows' ? 'Телефон' : 'Ноутбук');
@@ -528,7 +576,13 @@
     $('previewWindows').onclick = () => {};
     const dialog = $('onlineApproval');
     window.OnlineLink.init(platform, {
-      onStatus: value => state({ connected: value }),
+      onStatus: value => state({ connected: value, deviceName: connectedPhone.name }),
+      onDevice: device => {
+        connectedPhone = { name: device.name || 'Телефон', os: device.os || 'Телефон' };
+        if (connected) {
+          state({ connected: true, deviceName: connectedPhone.name });
+        }
+      },
       onCode: code => { $('pairCode').textContent = code; renderPairQr(code); },
       onReceive: received,
       onNotice: (message, isError) => feedback(message, isError, 'pairFeedback'),
