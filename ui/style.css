@@ -124,3 +124,20 @@ body[data-platform=android] .mobile-brand .brand-mark.animated-infinity{width:17
 @media(prefers-reduced-motion:reduce){
  body .brand-mark.animated-infinity .infinity-reflection{animation:none!important}
 }
+
+
+/* Real connected phone, shown on laptop after approval. */
+.connected-devices{width:calc(100% - 88px);max-width:990px;margin:9px auto 2px;padding:20px 22px;border:1px solid #bba0ff32;border-radius:18px;background:linear-gradient(115deg,#242031e3,#141721e8);box-shadow:0 13px 38px #0000001f}
+.connected-devices-header{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:15px}
+.connected-devices-kicker{color:#a99ad1;font-size:9px;letter-spacing:1.8px}
+.connected-devices-header h2{font-size:19px;color:#f2ecff;font-weight:550;margin-top:5px}
+.connected-devices-count{border:1px solid #bda7fa36;border-radius:30px;background:#bca0ff14;color:#d8c9fd;font-size:10px;padding:8px 11px;white-space:nowrap}
+.connected-device-row,.connected-device-empty{display:flex;gap:16px;align-items:center;padding:17px;border:1px solid #ffffff13;border-radius:13px;background:#0b0d1785}
+.connected-device-phone-icon,.connected-device-empty-icon{display:grid;place-items:center;width:48px;height:52px;border-radius:13px;background:#bba0ff15;color:#d1baff;border:1px solid #bba0ff2a;font-size:35px;flex-shrink:0}
+.connected-device-empty-icon{font-size:29px;color:#81739c}
+.connected-device-info{display:flex;flex-direction:column;gap:7px;min-width:0;flex:1}
+.connected-device-info strong,.connected-device-empty strong{color:#f1eafb;font-size:13px;font-weight:600}
+.connected-device-info span,.connected-device-empty p{color:#938da7;font-size:10px;line-height:1.6;margin:4px 0 0}
+.connected-device-live{color:#bde8a1;font-size:11px;white-space:nowrap;flex-shrink:0}
+@media(max-width:900px){.connected-devices{max-width:616px;width:calc(100% - 44px);margin:8px auto}.connected-devices-header h2{font-size:17px}}
+@media(max-width:480px){.connected-devices{padding:15px}.connected-device-row,.connected-device-empty{padding:13px;gap:10px}.connected-device-phone-icon,.connected-device-empty-icon{width:40px;height:44px;font-size:28px}.connected-device-live{font-size:9px}.connected-device-info strong,.connected-device-empty strong{font-size:11px}.connected-device-info span,.connected-device-empty p{font-size:9px}}
