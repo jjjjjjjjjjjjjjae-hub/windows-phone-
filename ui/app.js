@@ -71,7 +71,7 @@
   let cameraLastFrame = 0;
   const cameraCanvas = document.createElement('canvas');
   const cameraContext = cameraCanvas.getContext('2d', { willReadFrequently: true });
-  function cameraMessage(text) { $('cameraFeedback').textContent = text; }
+  function cameraMessage(text) { $('cameraFeedback').textContent = text; $('cameraHelp').textContent = text; }
   function stopQrCamera() {
     if (cameraAnimation) cancelAnimationFrame(cameraAnimation);
     cameraAnimation = 0;
@@ -110,49 +110,95 @@
   }
   async function startQrCamera() {
     if (!browser || platform !== 'android' || cameraStream) return;
-    if (!navigator.mediaDevices?.getUserMedia) {
-      feedback('Бұл браузер камераны қолдамайды. HTTPS арқылы Chrome немесе Safari аш.', true, 'pairFeedback'); return;
+    if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+      cameraMessage('Браузер камераны бұғаттады. Сайтты Chrome/Safari-де тікелей HTTPS арқылы аш немесе «QR-кодты фотоға түсіру» батырмасын бас.');
+      return;
     }
     if (!cameraContext || typeof window.jsQR !== 'function') {
-      feedback('QR сканерлеу модулі жүктелмеді. Сайтты жаңартып көр.', true, 'pairFeedback'); return;
+      cameraMessage('QR тану кітапханасы жүктелмеген. Сайтты қайта жаңарт.');
+      return;
     }
     $('startQrCamera').disabled = true;
     $('cameraArea').hidden = false;
     cameraMessage('Камераға рұқсат бер…');
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
-      });
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: 'environment' } });
+      } catch (error) {
+        if (error.name !== 'OverconstrainedError' && error.name !== 'NotFoundError') throw error;
+        stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: true });
+      }
       cameraStream = stream;
       const video = $('qrCameraVideo');
       video.srcObject = stream;
-      await video.play();
-      cameraMessage('Ноутбуктың QR-кодын жақтаудың ішіне орналастыр.');
+      video.muted = true;
+      video.setAttribute('playsinline', '');
+      // Don't block indefinitely if the browser stalls the play() promise.
+      video.play().catch(() => {
+        cameraMessage('Камера іске қосыла алмады. QR-ды фотоға түсіру режимін таңда.');
+        stopQrCamera();
+      });
+      cameraMessage('Камера қосылуда… QR-кодты жақтаудың ішіне орналастыр.');
       cameraDetecting = true;
       const frame = now => {
         if (!cameraDetecting) return;
         cameraAnimation = requestAnimationFrame(frame);
-        if (now - cameraLastFrame < 110 || video.readyState < 2) return;
+        if (now - cameraLastFrame < 130 || video.readyState < 2) return;
         cameraLastFrame = now;
-        const width = Math.min(720, video.videoWidth);
+        const width = Math.min(640, video.videoWidth);
         if (!width || !video.videoHeight) return;
         const height = Math.round(width * video.videoHeight / video.videoWidth);
-        cameraCanvas.width = width;
-        cameraCanvas.height = height;
-        cameraContext.drawImage(video, 0, 0, width, height);
-        const pixels = cameraContext.getImageData(0, 0, width, height);
-        const found = window.jsQR(pixels.data, width, height, { inversionAttempts: 'attemptBoth' });
-        if (found?.data) completeQrScan(found.data);
+        cameraCanvas.width = width; cameraCanvas.height = height;
+        try {
+          cameraContext.drawImage(video, 0, 0, width, height);
+          const pixels = cameraContext.getImageData(0, 0, width, height);
+          const found = window.jsQR(pixels.data, width, height, { inversionAttempts: 'attemptBoth' });
+          if (found?.data) completeQrScan(found.data);
+        } catch (error) {
+          cameraMessage('QR тану қатесі. QR-ды фотоға түсіріп көр.');
+          stopQrCamera();
+        }
       };
       cameraAnimation = requestAnimationFrame(frame);
     } catch (error) {
       stopQrCamera();
-      const message = error?.name === 'NotAllowedError' ? 'Камераға рұқсат берілмеді. Браузер баптауынан рұқсат бер.' :
-        error?.name === 'NotFoundError' ? 'Құрылғыдан камера табылмады.' :
-        'Камера ашылмады. Басқа қолданба камераны қолданып тұрмағанын тексер.';
-      feedback(message, true, 'pairFeedback');
+      const message = ['NotAllowedError','PermissionDeniedError','SecurityError'].includes(error?.name)
+        ? 'Камераға рұқсат берілмеді. Браузерден камераға рұқсат бер немесе QR фотосын таңда.'
+        : ['NotReadableError','TrackStartError','AbortError'].includes(error?.name)
+        ? 'Камера бос емес. Басқа камера қолданбасын жап немесе QR фотосын таңда.'
+        : 'Камера ашылмады (' + (error?.name || 'қате') + '). «QR-кодты фотоға түсіру» батырмасын пайдалан.';
+      cameraMessage(message);
     }
   }
+  async function scanQrImage(file) {
+    if (!file) return;
+    if (typeof window.jsQR !== 'function' || !cameraContext) {
+      cameraMessage('QR тану кітапханасы жүктелмеген. Сайтты жаңарт.');
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) { cameraMessage('Сурет 20 МБ-тан аспасын.'); return; }
+    try {
+      const url = URL.createObjectURL(file);
+      const photo = new Image();
+      try {
+        photo.src = url;
+        await photo.decode();
+        const width = Math.min(1600, photo.naturalWidth);
+        const height = Math.round(width * photo.naturalHeight / photo.naturalWidth);
+        cameraCanvas.width = width; cameraCanvas.height = height;
+        cameraContext.drawImage(photo,0,0,width,height);
+        const pixels = cameraContext.getImageData(0,0,width,height);
+        const result = window.jsQR(pixels.data,width,height,{inversionAttempts:'attemptBoth'});
+        if (!result?.data) cameraMessage('Суреттен QR оқылмады. Анығырақ түсір.');
+        else completeQrScan(result.data);
+      } finally { URL.revokeObjectURL(url); }
+    } catch (error) { cameraMessage('Фотоны оқу мүмкін болмады. Басқа сурет таңда.'); }
+  }
+  $('takeQrPhoto').onclick = () => { $('qrCameraCapture').value = ''; $('qrCameraCapture').click(); };
+  $('chooseQrPhoto').onclick = () => { $('qrImagePicker').value = ''; $('qrImagePicker').click(); };
+  $('qrCameraCapture').onchange = event => scanQrImage(event.target.files?.[0]);
+  $('qrImagePicker').onchange = event => scanQrImage(event.target.files?.[0]);
   $('startQrCamera').onclick = startQrCamera;
   $('stopQrCamera').onclick = stopQrCamera;
   document.addEventListener('visibilitychange', () => { if (document.hidden) stopQrCamera(); });
