@@ -59,6 +59,13 @@
     if (c !== channel || !data || typeof data !== 'object') return;
     if (data.t === 'accepted' && role === 'android') {
       authenticated = true;
+      // Identify the actual connected phone only after the laptop approves it.
+      const ua = navigator.userAgent || '';
+      const os = /Android/i.test(ua) ? 'Android' :
+        /iPhone|iPad|iPod/i.test(ua) ? 'iOS' : 'Телефон';
+      const name = os === 'Android' ? 'Android телефон' :
+        os === 'iOS' ? 'iPhone' : 'Телефон';
+      c.send({ t: 'device-info', name, os });
       status(true);
       if (pendingConnect) { pendingConnect.resolve(); pendingConnect = null; }
       return;
@@ -68,6 +75,13 @@
       return;
     }
     if (!authenticated) return;
+    if (data.t === 'device-info' && role === 'windows') {
+      // The laptop only trusts metadata from its approved WebRTC channel.
+      const name = typeof data.name === 'string' ? data.name.slice(0, 60) : 'Телефон';
+      const os = typeof data.os === 'string' ? data.os.slice(0, 30) : 'Телефон';
+      hooks.onDevice?.({ name: name || 'Телефон', os: os || 'Телефон' });
+      return;
+    }
     if (data.t === 'begin' && role === 'windows') {
       if (incoming || !Number.isSafeInteger(data.length) || data.length < 1 || data.length > SIZE_LIMIT ||
           !['text', 'image'].includes(data.kind) || typeof data.id !== 'string' || data.id.length > 64) {
