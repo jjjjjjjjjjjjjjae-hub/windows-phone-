@@ -186,3 +186,28 @@ body.cosmic-active.cosmic-scanning .camera-viewport{max-width:620px;margin:15vh 
 body.cosmic-active.cosmic-scanning .camera-feedback{max-width:620px;margin:15px auto;color:#efe4ff;text-align:center}
 body.cosmic-active.cosmic-scanning #stopQrCamera{max-width:620px;margin:14px auto;display:block}
 @media(min-width:650px){body.cosmic-active #cosmicDevices{max-height:100svh;min-height:0;width:auto;height:100svh;aspect-ratio:853/1843}}
+
+
+/* v16: Real DOM/SVG reproduction of supplied cosmic screen. No image screenshot. */
+body.cosmic-active #cosmicDevices{background:radial-gradient(ellipse at 76% 5%,#22106687,transparent 33%),radial-gradient(ellipse at 17% 63%,#13225864,transparent 27%),radial-gradient(ellipse at 83% 77%,#24105a5e,transparent 30%),linear-gradient(165deg,#03020e 3%,#030515 46%,#020614 100%)!important;overflow:hidden}
+body.cosmic-active .cosmic-space{position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 72% 0%,#520eff35,transparent 18%),radial-gradient(ellipse at 15% 68%,#1608a82e,transparent 33%),radial-gradient(ellipse at 45% 86%,#2b09ac2c,transparent 26%);opacity:1}
+body.cosmic-active .cosmic-energy{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;z-index:1;pointer-events:none;user-select:none}
+body.cosmic-active .cosmic-scan-hit{left:27%;top:23.3%;width:46%;height:12.5%;z-index:5;display:grid;place-items:center;overflow:visible;border:0;background:transparent;cursor:pointer;padding:0;filter:drop-shadow(0 0 12px #922aff73);transition:filter .2s ease}
+body.cosmic-active .cosmic-scan-hit:active{transform:scale(.97)}
+body.cosmic-active .cosmic-infinity-svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 8px #bb39fd)}
+body.cosmic-active .cosmic-nav-hits{position:absolute;left:5.5%;right:5.5%;top:auto;bottom:7.3%;height:9.2%;min-height:0;display:flex;z-index:5;border:1px solid #ac38ffba;border-radius:999px;background:radial-gradient(ellipse at 50% 0,#8532ff4d,transparent 76%),linear-gradient(175deg,#27105fa6,#070725bd);box-shadow:0 0 8px #c342ffa3,inset 0 0 20px #9224ff6b,0 0 35px #6018ff88;backdrop-filter:blur(5px);padding:6px 6px 3px;align-items:stretch}
+body.cosmic-active .cosmic-nav-hits button{display:flex;flex:1;flex-direction:column;justify-content:center;align-items:center;gap:8px;border:0;border-radius:999px;background:transparent;color:#c8bcf7;padding:0;min-width:0;font-family:inherit}
+body.cosmic-active .cosmic-nav-icon{display:block;position:relative;width:35px;height:35px;flex-shrink:0}
+body.cosmic-active .cosmic-planet:before{content:"";position:absolute;inset:5px;border-radius:50%;border:1.5px solid #ad69ff;box-shadow:inset -7px -3px 9px #4c1be2,0 0 8px #9b4bff;background:radial-gradient(circle at 35% 35%,#8c54ff,#1c1557)}
+body.cosmic-active .cosmic-planet:after{content:"";position:absolute;left:-4px;right:-4px;top:14px;height:9px;border:2px solid #9c4dff;border-radius:50%;transform:rotate(-23deg);box-shadow:0 0 7px #a343ff}
+body.cosmic-active .cosmic-galaxy:before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(ellipse at 53% 50%,#f8e1ff 0 4%,#ef64ff 9%,#6c22fc 19%,#371195 38%,transparent 67%);box-shadow:0 0 15px #ab37ff}
+body.cosmic-active .cosmic-galaxy:after{content:"";position:absolute;left:-11px;right:-11px;top:11px;height:13px;border:2.5px solid #b07aff;border-radius:50%;transform:rotate(-16deg);box-shadow:0 0 9px #b44dff}
+body.cosmic-active .cosmic-clock:before{content:"";position:absolute;inset:3px;border-radius:50%;border:2px solid #c6a8ff;background:radial-gradient(circle at 35% 28%,#7330e7,#241050 76%);box-shadow:0 0 9px #9d49fa}
+body.cosmic-active .cosmic-clock:after{content:"";position:absolute;top:9px;left:17px;width:8px;height:11px;border-left:2px solid white;border-bottom:2px solid white;border-radius:0 0 0 2px}
+body.cosmic-active .cosmic-nav-label{font-size:clamp(9px,2.5vw,13px);white-space:nowrap;letter-spacing:-.3px;line-height:1.15;text-shadow:0 0 5px #7c62f4}
+body.cosmic-active .cosmic-current{color:#fff!important;text-shadow:0 0 10px #df90ff}
+body.cosmic-active .cosmic-current:after{content:"";height:3px;width:31%;max-width:43px;position:absolute;bottom:2px;border-radius:8px;background:#f2b6ff;box-shadow:0 0 8px 2px #ce62ff}
+body.cosmic-active .cosmic-nav-hits button:focus-visible{outline:2px solid #e8c8ff;outline-offset:0}
+@media(prefers-reduced-motion:no-preference){body.cosmic-active .cosmic-space{animation:cosmic-breathe 8s ease-in-out infinite alternate}body.cosmic-active .cosmic-infinity-svg{animation:cosmic-float 5s ease-in-out infinite alternate}}
+@keyframes cosmic-breathe{from{opacity:.7}to{opacity:1}}
+@keyframes cosmic-float{from{transform:translateY(-2px)}to{transform:translateY(3px)}}
