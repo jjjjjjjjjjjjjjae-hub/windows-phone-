@@ -54,3 +54,19 @@ body[data-platform=windows] .preview-modes,body[data-platform=android] .preview-
 .phone-qr-tip{display:flex;align-items:flex-start;gap:12px;padding:15px 17px;border:1px solid #bfa5ff30;border-radius:13px;background:#bca0ff0a;font-size:12px;line-height:1.7;color:#bfb1d8;margin:22px 0 12px;max-width:560px}
 .phone-qr-tip span{color:#c5adff;font-size:24px;line-height:1}
 @media(max-width:480px){.qr-pair-card{padding:24px 12px}.qr-shell{width:246px;height:246px;padding:12px}.pair-qr,.pair-qr img,.pair-qr canvas{width:222px!important;height:222px!important}}
+
+/* Phone camera QR scanner */
+.camera-button{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;max-width:560px;margin:16px 0;padding:17px 20px;border-radius:13px;background:linear-gradient(100deg,#c6a8ff,#a6baff);box-shadow:0 8px 35px #a182ff29}
+.camera-button span{font-size:22px}
+.camera-area{width:100%;max-width:560px;padding:13px;border:1px solid #bfaaff50;border-radius:17px;background:#171522;margin:15px 0}
+.camera-viewport{width:100%;position:relative;overflow:hidden;aspect-ratio:4/3;background:#07070c;border-radius:12px}
+#qrCameraVideo{display:block;width:100%;height:100%;object-fit:cover}
+.qr-reticle{position:absolute;inset:15% 19%;pointer-events:none}
+.qr-reticle span{position:absolute;width:30px;height:30px;border:4px solid #c4b0ff}
+.qr-reticle span:nth-child(1){left:0;top:0;border-right:0;border-bottom:0;border-radius:8px 0 0 0}
+.qr-reticle span:nth-child(2){right:0;top:0;border-left:0;border-bottom:0;border-radius:0 8px 0 0}
+.qr-reticle span:nth-child(3){left:0;bottom:0;border-right:0;border-top:0;border-radius:0 0 0 8px}
+.qr-reticle span:nth-child(4){right:0;bottom:0;border-left:0;border-top:0;border-radius:0 0 8px 0}
+.camera-feedback{font-size:12px;color:#c8bcdf;line-height:1.7;margin:14px 3px}
+.camera-area .secondary{display:block;width:100%;margin-bottom:2px}
+.phone-qr-divider{margin:22px 0;max-width:560px}
