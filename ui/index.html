@@ -7,12 +7,12 @@
   <meta name="description" content="Екі экран арасындағы жеңіл, ерекше интерфейс. Браузердегі дизайн сынағы.">
   <meta name="theme-color" content="#0b0d14">
   <title>Екі экран · Онлайн тасымал</title>
-  <link rel="stylesheet" href="style.css?v=vector16">
+  <link rel="stylesheet" href="style.css?v=photo17">
   <script src="effects.js?v=2" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js" defer></script>
   <script src="vendor/qrcode.min.js" defer></script>
   <script src="vendor/jsQR.js" defer></script><script src="online.js?v=vector16" defer></script>
-  <script src="app.js?v=vector16" defer></script>
+  <script src="app.js?v=photo17" defer></script>
 </head>
 <body>
 <div class="ambient" aria-hidden="true"></div>
@@ -61,23 +61,15 @@
     </section>
     <section id="connection" class="page" hidden><div class="eyebrow">БІР БАЙЛАНЫСТАН БАСТАЛАДЫ</div><h1>Жақынырақ бол.</h1><p class="subtitle">Телефон мен ноутбук интернетке қосылсын. Бір Wi-Fi міндетті емес.</p>
 <div id="cosmicDevices" class="cosmic-devices" hidden>
- <div class="cosmic-space" aria-hidden="true"></div>
- <img class="cosmic-energy" src="assets/devices-energy.svg" alt="" draggable="false" aria-hidden="true">
- <button type="button" id="cosmicScan" class="cosmic-scan-hit" aria-label="QR-кодты камерамен сканерлеу" title="QR сканерлеу">
- <svg viewBox="0 0 240 125" class="cosmic-infinity-svg" aria-hidden="true"><defs>
- <linearGradient id="inftyGradient" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#f757fc"/><stop offset=".26" stop-color="#a95aff"/><stop offset=".48" stop-color="#f7e6ff"/><stop offset=".7" stop-color="#36b7ff"/><stop offset="1" stop-color="#e968ff"/></linearGradient>
- <filter id="inftyGlow" x="-35%" y="-85%" width="170%" height="270%"><feGaussianBlur stdDeviation="8"/></filter>
- </defs><path id="inftyPath" d="M120 62 C91 27 48 27 33 52 C10 92 46 116 79 85 C98 67 108 46 130 43 C157 39 171 103 205 92 C245 79 215 24 185 35 C162 44 143 69 120 62" fill="none"/>
- <use href="#inftyPath" stroke="#a532ff" stroke-width="23" filter="url(#inftyGlow)" opacity=".9"/>
- <use href="#inftyPath" stroke="url(#inftyGradient)" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
- <use href="#inftyPath" stroke="#eee6ff" stroke-width="3.5" stroke-linecap="round" opacity=".88"/>
- </svg></button>
- <div id="cosmicConnectedStatus" class="cosmic-connected-status" hidden aria-live="polite"></div>
- <div class="cosmic-nav-hits" role="navigation" aria-label="Бөлімдер">
-  <button type="button" id="cosmicClipboard" aria-label="Ортақ буфер"><span class="cosmic-nav-icon cosmic-planet" aria-hidden="true"><i></i></span><span class="cosmic-nav-label">Ортақ буфер</span></button>
-  <button type="button" id="cosmicDevicesTab" class="cosmic-current" aria-label="Құрылғылар" aria-current="page"><span class="cosmic-nav-icon cosmic-galaxy" aria-hidden="true"><i></i></span><span class="cosmic-nav-label">Құрылғылар</span></button>
-  <button type="button" id="cosmicHistory" aria-label="Жіберу тарихы"><span class="cosmic-nav-icon cosmic-clock" aria-hidden="true"><i></i></span><span class="cosmic-nav-label">Жіберу тарихы</span></button>
- </div>
+  <!-- The artwork is the exact portrait supplied in the reference; hotspots stay real buttons. -->
+  <img class="cosmic-photo" src="assets/devices-photo.webp" alt="" draggable="false" aria-hidden="true" width="853" height="1843">
+  <button type="button" id="cosmicScan" class="cosmic-scan-hit" aria-label="Құрылғымен QR арқылы қосылу" title="QR арқылы қосылу"></button>
+  <div id="cosmicConnectedStatus" class="cosmic-connected-status" hidden aria-live="polite"></div>
+  <div class="cosmic-nav-hits" role="navigation" aria-label="Бөлімдер">
+    <button type="button" id="cosmicClipboard" aria-label="Ортақ буфер"></button>
+    <button type="button" id="cosmicDevicesTab" aria-label="Құрылғылар" aria-current="page"></button>
+    <button type="button" id="cosmicHistory" aria-label="Жіберу тарихы"></button>
+  </div>
 </div>
     <div id="connectedDevices" class="connected-devices" aria-label="Қосылған құрылғылар" hidden>
       <div class="connected-devices-header"><div><span class="connected-devices-kicker">ОНЛАЙН БАЙЛАНЫС</span><h2>Қосылған құрылғылар</h2></div><span id="connectedDevicesCount" class="connected-devices-count">0 құрылғы</span></div>
@@ -100,7 +92,7 @@
  <p id="cameraFeedback" class="camera-feedback" role="status" aria-live="polite">Камера ашылуда…</p>
  <button type="button" class="secondary" id="stopQrCamera">Камераны жабу</button>
 </div>
-<div class="qr-divider phone-qr-divider"><span>НЕМЕСЕ КОДПЕН ҚОСЫЛ</span></div><label class="field">Ноутбуктағы жеке код<input id="codeInput" maxlength="19" placeholder="WP-XXXXXXXXXXXXXXXX" autocomplete="off" spellcheck="false"></label><button class="primary" id="pairButton">Ноутбукке онлайн қосылу</button><p class="form-note">Ноутбукте көрсетілген кодты енгіз де, қосылуды ноутбуктан раста.</p><input id="hostInput" hidden></div><div id="windowsPair" hidden>
+<div class="qr-divider phone-qr-divider"><span>НЕМЕСЕ КОДПЕН ҚОСЫЛ</span></div><label class="field">Ноутбуктағы жеке код<input id="codeInput" maxlength="19" placeholder="WP-XXXXXXXXXXXXXXXX" autocomplete="off" spellcheck="false"></label><button class="primary" id="pairButton">Ноутбукке онлайн қосылу</button><p class="form-note">Ноутбукте көрсетілген кодты енгіз де, қосылуды ноутбуктан раста.</p><input id="hostInput" hidden></div><div id="windowsPair" hidden><button type="button" id="closeCosmicPair" class="cosmic-pair-close" aria-label="QR терезесін жабу">✕</button>
   <div class="pair-card qr-pair-card">
     <div class="qr-topline"><span class="qr-icon" aria-hidden="true">▦</span><span>QR АРҚЫЛЫ ҚОСЫЛУ</span></div>
     <h2>Телефон камерасымен сканерле</h2>
