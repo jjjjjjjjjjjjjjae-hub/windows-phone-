@@ -3,10 +3,11 @@
   const $ = id => document.getElementById(id);
   const android = window.BailanysNative;
   const windows = window.chrome?.webview;
-  const preview = !android && !windows;
+  const browser = !android && !windows;
+  const preview = false;
   const requestedPlatform = new URLSearchParams(location.search).get('platform');
-  let platform = ['android', 'windows'].includes(requestedPlatform)
-    ? requestedPlatform : (/Android|iPhone|iPad/i.test(navigator.userAgent) || innerWidth <= 600 ? 'android' : 'windows');
+  const actualPhone = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && innerWidth <= 820);
+  let platform = browser ? (actualPhone ? 'android' : 'windows') : (['android', 'windows'].includes(requestedPlatform) ? requestedPlatform : (actualPhone ? 'android' : 'windows'));
   let connected = false, mode = 'text', image = null, last = null, sequence = 0, busy = false;
   const pending = new Map(), historyItems = [];
   const effects = window.BailanysEffects;
@@ -34,15 +35,15 @@
     $('platformLabel').textContent = phone ? 'ANDROID' : 'WINDOWS';
     $('senderPanel').hidden = !phone;
     $('receiverPanel').hidden = phone;
-    $('androidPair').hidden = preview || !phone;
-    $('windowsPair').hidden = preview || phone;
+    $('androidPair').hidden = !phone;
+    $('windowsPair').hidden = phone;
     $('subtitle').textContent = preview
       ? (phone ? 'Мәтін мен суретті жіберіп, интерфейсті тексер.' : 'Демо жіберілімнің нәтижесі осы жерде көрінеді.')
       : (phone ? 'Сурет, мәтін немесе код — бір батырмамен.' : 'Телефоннан келген сурет, мәтін және код — ноутбук буферінде.');
     $('previewAndroid').setAttribute('aria-pressed', String(phone));
     $('previewWindows').setAttribute('aria-pressed', String(!phone));
     arrangeNavigation();
-    if (preview) {
+    if (browser) {
       const url = new URL(location.href);
       url.searchParams.set('platform', value);
       window.history.replaceState(null, '', url);
@@ -60,11 +61,11 @@
     document.body.dataset.connected = String(connected);
     if (!connected) effects?.reset();
     const device = data.deviceName || (platform === 'windows' ? 'Телефон' : 'Ноутбук');
-    $('deviceName').textContent = connected ? device + (preview ? ' · демо' : '') : 'Құрылғы қосылмаған';
-    $('statusText').textContent = connected ? (preview ? 'Демо қосылды' : 'Қосылды') : 'Қосылмаған';
+    $('deviceName').textContent = connected ? device : 'Құрылғы қосылмаған';
+    $('statusText').textContent = connected ? ('Онлайн қосылды') : 'Қосылмаған';
     $('statusDot').classList.toggle('online', connected);
     $('connectionHeading').textContent = connected
-      ? device + (preview ? ' · демо' : '') : (preview ? 'Демо байланысты қос' : platform === 'windows' ? 'Телефоныңды қос' : 'Ноутбукке қосыл');
+      ? device : (platform === 'windows' ? 'Телефонды қос' : 'Ноутбукке қосыл');
     $('connectionDescription').textContent = preview
       ? (connected ? 'Осы бет ішінде интерфейсті тексеруге дайын.' : 'Браузерде жұптасу мен жіберуді тексер.')
       : (connected ? 'Жеке Wi-Fi байланысы · TLS шифрлауы' : platform === 'windows' ? 'Жұптасу кодын телефондағы қолданбаға енгіз.' : 'Екі құрылғы бір Wi-Fi желісінде болуы керек.');
@@ -158,7 +159,7 @@
     $('imagePicker').classList.toggle('has-image', Boolean(image));
   }
   $('pickImage').onclick = async () => {
-    if (preview) { $('browserImageInput').value = ''; $('browserImageInput').click(); return; }
+    if (browser) { $('browserImageInput').value = ''; $('browserImageInput').click(); return; }
     try {
       const result = await call('pickImage');
       if (result) { image = result; showImage(); }
@@ -178,7 +179,7 @@
       });
       const decoded = new Image(); decoded.src = dataUrl; await decoded.decode();
       image = { name: file.name, preview: dataUrl, file };
-      showImage(); feedback('Сурет таңдалды. Демо жіберілімге дайын.');
+      showImage(); feedback('Сурет жіберуге дайын.');
     } catch { feedback('Сурет файлын ашу мүмкін болмады. Басқа суретті таңда.', true); }
   };
 
@@ -209,12 +210,12 @@
       if ($(id)) $(id).disabled = true;
     }
     try {
-      if (preview) {
+      if (browser) {
+        if (mode === 'text') await window.OnlineLink.sendText($('textInput').value);
+        else await window.OnlineLink.sendImage(image.preview, image.name);
         await effects?.send({ type: mode });
-        received(mode === 'text' ? { type: 'text', text: $('textInput').value, copied: false }
-          : { type: 'image', preview: image.preview, file: image.file, name: image.name, copied: false });
-        feedback('Демо жіберілді. Жоғарыдағы «Ноутбук» көрінісін аш.');
-        $('showDemoResult').hidden = false;
+        feedback('Ноутбукқа онлайн жеткізілді.');
+        record(mode === 'text' ? $('textInput').value : image.name, mode, 'Жіберілді');
       } else {
         feedback('Жіберілуде…');
         await call(mode === 'text' ? 'sendText' : 'sendImage', mode === 'text' ? { text: $('textInput').value } : { imageId: image.id });
@@ -242,28 +243,33 @@
     if (busy) return;
     busy = true; $('pairButton').disabled = true;
     try {
-      const host = $('hostInput').value.trim(), code = $('codeInput').value.trim();
-      if (!/^\d{6}$/.test(code)) throw new Error('Ноутбуктағы 6 таңбалы кодты енгіз.');
-      feedback('Қауіпсіз байланысты тексеру…', false, 'pairFeedback');
-      const probe = await call('probe', { host });
-      $('trustFingerprint').textContent = probe.fingerprint;
-      const trusted = await new Promise(resolve => {
-        $('confirmTrust').onclick = () => { $('trustDialog').close(); resolve(true); };
-        $('rejectTrust').onclick = () => { $('trustDialog').close(); resolve(false); };
-        $('trustDialog').oncancel = () => resolve(false);
-        $('trustDialog').showModal();
-      });
-      if (!trusted) throw new Error('Жұптасу тоқтатылды.');
-      feedback('Ноутбуктағы қосылу сұрауын раста.', false, 'pairFeedback');
-      state(await call('pair', { host, code, pin: probe.pin }));
-      feedback('Ноутбукке қосылды.', false, 'pairFeedback'); tab('clipboard');
+      if (browser) {
+        feedback('Ноутбук растауын күтуде…', false, 'pairFeedback');
+        await window.OnlineLink.connect($('codeInput').value.trim());
+        feedback('Ноутбукпен онлайн байланыс орнады.', false, 'pairFeedback');
+        tab('clipboard');
+      } else {
+        const host = $('hostInput').value.trim(), code = $('codeInput').value.trim();
+        if (!/^\\d{6}$/.test(code)) throw new Error('Ноутбуктағы 6 таңбалы кодты енгіз.');
+        const probe = await call('probe', { host });
+        $('trustFingerprint').textContent = probe.fingerprint;
+        const trusted = await new Promise(resolve => {
+          $('confirmTrust').onclick = () => { $('trustDialog').close(); resolve(true); };
+          $('rejectTrust').onclick = () => { $('trustDialog').close(); resolve(false); };
+          $('trustDialog').oncancel = () => resolve(false);
+          $('trustDialog').showModal();
+        });
+        if (!trusted) throw new Error('Жұптасу тоқтатылды.');
+        state(await call('pair', { host, code, pin: probe.pin }));
+      }
     } catch (error) { feedback(error.message, true, 'pairFeedback'); }
     finally { busy = false; $('pairButton').disabled = false; }
   };
   $('disconnectButton').onclick = async () => {
     try {
-      state(preview ? { connected: false } : await call('disconnect'));
-      feedback(preview ? 'Демо байланыс ажыратылды.' : 'Байланыс ажыратылды.', false, 'pairFeedback');
+      if (browser) { window.OnlineLink.disconnect(); state({ connected: false }); }
+      else state(await call('disconnect'));
+      feedback('Байланыс ажыратылды.', false, 'pairFeedback');
     } catch (error) { feedback(error.message, true, 'pairFeedback'); }
   };
 
@@ -274,12 +280,12 @@
       const img = document.createElement('img'); img.src = data.preview; img.alt = 'Қабылданған сурет';
       $('receivedContent').append(img);
     } else $('receivedContent').textContent = data.text;
-    $('receiveBadge').textContent = preview ? 'Демо қабылданды' : data.copied ? 'Буферге көшірілді' : 'Қабылданды';
+    $('receiveBadge').textContent = data.copied ? 'Буферге көшірілді' : 'Қабылданды';
     $('copyAgain').disabled = false;
     $('demoStart').hidden = true;
     effects?.receive($('receivedContent'));
-    record(data.type === 'image' ? data.name || 'Сурет' : data.text, data.type, preview ? 'Демо · Телефон → Ноутбук' : 'Қабылданды');
-    if (!preview) feedback(data.copied ? 'Буферге көшірілді. Ctrl + V бас.' : 'Қабылданды. Буферге қайта көшіруге болады.');
+    record(data.type === 'image' ? data.name || 'Сурет' : data.text, data.type, 'Қабылданды');
+    if (true) feedback(data.copied ? 'Буферге көшірілді. Ctrl + V бас.' : 'Қабылданды. Буферге қайта көшіруге болады.');
   }
 
   // Called from the copy click so browser clipboard access keeps the user's gesture.
@@ -302,51 +308,54 @@
   $('copyAgain').onclick = async () => {
     if (!last) return;
     try {
-      await (preview ? copyPreview() : call('copyAgain'));
+      await (browser ? copyPreview() : call('copyAgain'));
       $('receiveBadge').textContent = 'Буферге көшірілді'; feedback('Осы құрылғының буферіне көшірілді.');
     } catch { feedback('Көшіру орындалмады. Браузердің буферге рұқсатын тексер немесе мәтінді белгілеп көшір.', true); }
   };
   $('autoCopy').onchange = async () => {
-    try { await call('autoCopy', { enabled: $('autoCopy').checked }); }
+    try { if (!browser) await call('autoCopy', { enabled: $('autoCopy').checked }); }
     catch (error) { feedback(error.message, true); }
   };
 
   document.querySelectorAll('.nav').forEach(button => { button.onclick = () => tab(button.dataset.tab); });
   $('openConnection').onclick = () => tab('connection');
   window.addEventListener('resize', arrangeNavigation);
-  if (preview) {
+  if (browser) {
     document.body.classList.add('browser-preview');
-    $('previewToolbar').hidden = false; $('environment').hidden = false; $('demoPair').hidden = false;
-    $('demoStart').hidden = false; $('useDemoImage').hidden = false;
-    function useDemoImage() {
-      image = { name: 'Кішкене жақынырақ · сынақ суреті', preview: new URL('assets/demo-art.svg', location.href).href };
-      setMode('image'); showImage();
-      feedback('Сынақ суреті дайын. Жіберіп, бөлшектерге ыдырауын көр.');
-    }
-    $('useDemoImage').onclick = useDemoImage;
-    $('demoStart').onclick = () => {
-      renderPlatform('android'); state({ connected: true }); tab('clipboard'); useDemoImage();
-      $('imagePanel').scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
-    };
-    document.querySelector('#connection > .subtitle').textContent = 'Жұптасқан және ажыратылған күйлерді осы бетте сына.';
-    document.querySelector('.local-note').textContent = 'Браузердегі интерфейс сынағы';
-    $('privacyTitle').textContent = 'Сынақ деректері осы бетте қалады';
-    $('privacyText').textContent = 'Таңдалған мәтін мен сурет серверге жіберілмейді. Бетті жаңартқанда сынақ тазарады.';
-    $('transferHint').textContent = 'Жіберген соң «Ноутбук» көрінісіне ауыс.';
-    $('sendButton').firstElementChild.textContent = 'Демо жіберу';
-    $('copyAgain').textContent = 'Осы құрылғының буферіне көшіру';
+    $('environment').hidden = true;
+    $('previewToolbar').hidden = true;
+    $('demoPair').hidden = true;
+    $('demoStart').hidden = true;
+    $('useDemoImage').hidden = true;
+    $('copyAgain').textContent = 'Буферге көшіру';
+    $('sendButton').firstElementChild.textContent = 'Ноутбукке онлайн жіберу';
+    $('transferHint').textContent = 'Жіберген сурет пен мәтін ноутбукта бірден көрсетіледі.';
     document.querySelector('.switch-row').hidden = true;
-    document.querySelector('#receivedContent p').textContent = '«Телефон» көрінісінен демо жібер. Нәтижесі осында көрінеді.';
-    const resultButton = document.createElement('button');
-    resultButton.id = 'showDemoResult'; resultButton.className = 'secondary demo-result'; resultButton.hidden = true;
-    resultButton.textContent = 'Ноутбуктегі нәтижені көру →';
-    resultButton.onclick = () => { renderPlatform('windows'); tab('clipboard'); feedback('Демо нәтиже. Бұл — осы бетте жіберілген мазмұн.'); };
-    $('senderPanel').append(resultButton);
-    $('previewAndroid').onclick = () => { renderPlatform('android'); tab('clipboard'); feedback(''); };
-    $('previewWindows').onclick = () => { renderPlatform('windows'); tab('clipboard'); feedback(''); };
+    document.querySelector('#receivedContent p').textContent = 'Телефоннан жіберілген мәтін не сурет осы жерде пайда болады.';
+    $('privacyTitle').textContent = 'Шифрланған тікелей байланыс';
+    $('privacyText').textContent = 'Жұптастыру үшін PeerJS сервері қолданылады, ал мәлімет WebRTC арқылы жіберіледі.';
+    $('previewAndroid').onclick = () => {};
+    $('previewWindows').onclick = () => {};
+    const dialog = $('onlineApproval');
+    window.OnlineLink.init(platform, {
+      onStatus: value => state({ connected: value }),
+      onCode: code => { $('pairCode').textContent = code; },
+      onReceive: received,
+      onNotice: (message, isError) => feedback(message, isError, 'pairFeedback'),
+      onProgress: percent => feedback('Жіберілуде: ' + percent + '%'),
+      onApproval: () => new Promise(resolve => {
+        if (dialog.open) { resolve(false); return; }
+        const finish = value => { dialog.close(); resolve(value); };
+        $('onlineAccept').onclick = () => finish(true);
+        $('onlineReject').onclick = () => finish(false);
+        dialog.oncancel = event => { event.preventDefault(); finish(false); };
+        dialog.showModal();
+      })
+    });
+    if (platform === 'windows') tab('connection');
   }
   renderPlatform(platform);
   setMode('text');
-  tab('clipboard');
-  if (!preview) call('ready').then(result => { if (result) state(result); }).catch(error => feedback(error.message, true));
+  if (!browser || platform === 'android') tab('clipboard');
+  if (!browser) call('ready').then(result => { if (result) state(result); }).catch(error => feedback(error.message, true));
 })();
