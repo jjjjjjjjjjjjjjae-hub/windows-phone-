@@ -296,12 +296,20 @@
     starfield.appendChild(stars);
   }
   $('cosmicScan').onclick = cosmicPair;
+  $('novaScanAction').onclick = cosmicPair;
+  $('novaCodeAction').onclick = () => {
+    if (connected) return;
+    $('androidPair').classList.add('nova-code-open');
+  };
+  $('novaCodeClose').onclick = () => $('androidPair').classList.remove('nova-code-open');
+  $('novaDisconnect').onclick = () => $('disconnectButton').click();
   $('cosmicClipboard').onclick = () => tab('clipboard');
   $('cosmicDevicesTab').onclick = cosmicPair;
   $('cosmicHistory').onclick = () => tab('history');
   $('closeCosmicPair').onclick = () => $('windowsPair').classList.remove('cosmic-pair-open');
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') $('windowsPair').classList.remove('cosmic-pair-open');
+    if (e.key === 'Escape') $('androidPair').classList.remove('nova-code-open');
   });
 
   $('stopQrCamera').onclick = stopQrCamera;
@@ -311,6 +319,7 @@
   function tab(id) {
     if (id !== 'connection' && cameraStream) stopQrCamera();
     if (id !== 'connection') $('windowsPair').classList.remove('cosmic-pair-open');
+    if (id !== 'connection') $('androidPair').classList.remove('nova-code-open');
     document.body.classList.toggle('cosmic-active', browser && platform === 'android' && id === 'connection');
     document.querySelectorAll('.page').forEach(page => { page.hidden = page.id !== id; });
     document.querySelectorAll('.nav').forEach(button => {
@@ -359,6 +368,12 @@
     if (!connected) connectedPhone = { name: platform === 'android' ? 'Ноутбук' : 'Телефон', os: platform === 'android' ? 'Ноутбук' : 'Телефон' };
     drawConnectedDevices();
     document.body.dataset.connected = String(connected);
+    if ($('novaConnectionLabel')) $('novaConnectionLabel').textContent = connected ? 'Онлайн' : 'Қосылмаған';
+    if ($('novaScanAction')) $('novaScanAction').hidden = connected;
+    if ($('novaCodeAction')) $('novaCodeAction').hidden = connected;
+    if ($('novaDisconnect')) $('novaDisconnect').hidden = !connected;
+    if ($('cosmicScan')) $('cosmicScan').setAttribute('aria-label', connected ? 'Құрылғы қосылған' : 'Ноутбуктің QR-кодын камерамен сканерлеу');
+    if (connected) $('androidPair').classList.remove('nova-code-open');
     if ($('stellarLinkText')) $('stellarLinkText').textContent = connected ? 'ҚҰРЫЛҒЫ ҚОСЫЛДЫ' : 'ҚОСЫЛУДЫ КҮТУДЕ';
     if (!connected) effects?.reset();
     const device = data.deviceName || (platform === 'windows' ? 'Телефон' : 'Ноутбук');
