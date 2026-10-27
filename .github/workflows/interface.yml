@@ -1,0 +1,25 @@
+name: Interface screenshots
+on:
+  push:
+    paths: ['ui/**', 'tools/capture-ui.cjs', 'package*.json', '.github/workflows/interface.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  screenshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - run: npm run screenshots
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Bailanys-interface-screenshots
+          path: docs/screenshots/*.png
+          if-no-files-found: error
+          retention-days: 30

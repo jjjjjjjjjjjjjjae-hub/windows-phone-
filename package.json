@@ -1,0 +1,1 @@
+{"name":"bailanys-ui-checks","private":true,"scripts":{"screenshots":"node tools/capture-ui.cjs"},"devDependencies":{"playwright":"1.56.1","sharp":"0.34.4"}}
