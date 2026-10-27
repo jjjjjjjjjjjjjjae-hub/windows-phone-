@@ -154,3 +154,35 @@ body[data-connected="true"] #connection>.form-note{display:none}
  #connection .connected-device-row{flex-wrap:wrap}
  #connection .connected-device-live{margin-left:auto}
 }
+
+
+/* Reference-inspired fullscreen cosmic Devices screen (phone only). */
+body.cosmic-active{background:#010311}
+body.cosmic-active .app{min-height:100svh}
+body.cosmic-active main{min-height:100svh}
+body.cosmic-active main>header,body.cosmic-active main>footer,
+body.cosmic-active main>nav{display:none!important}
+body.cosmic-active #connection{padding:0!important;max-width:none!important;width:100%;min-height:100svh;margin:0;position:relative;overflow:hidden}
+body.cosmic-active #connection>.eyebrow,
+body.cosmic-active #connection>h1,
+body.cosmic-active #connection>.subtitle,
+body.cosmic-active #connection>.connected-devices,
+body.cosmic-active #connection>#demoPair,
+body.cosmic-active #connection>#androidPair,
+body.cosmic-active #connection>#windowsPair,
+body.cosmic-active #connection>#disconnectButton,
+body.cosmic-active #connection>#pairFeedback,
+body.cosmic-active #connection>.form-note{display:none!important}
+body.cosmic-active #cosmicDevices{display:block!important;position:relative;width:min(100%,calc(100svh * 853 / 1843));min-height:100svh;aspect-ratio:853/1843;margin:0 auto;background:#020414;isolation:isolate}
+body.cosmic-active .cosmic-scene{width:100%;height:100%;position:absolute;inset:0;object-fit:fill;pointer-events:none;user-select:none}
+body.cosmic-active .cosmic-scan-hit{position:absolute;left:29%;top:23%;width:42%;height:12%;z-index:3;background:transparent;border:0;border-radius:100px;cursor:pointer;touch-action:manipulation}
+body.cosmic-active .cosmic-scan-hit:focus-visible{outline:2px solid #ecc0ff;outline-offset:3px}
+body.cosmic-active .cosmic-nav-hits{position:absolute;left:6%;right:6%;top:83%;height:10%;display:flex;z-index:3}
+body.cosmic-active .cosmic-nav-hits button{flex:1;border:0;background:none;cursor:pointer;touch-action:manipulation}
+body.cosmic-active .cosmic-nav-hits button:focus-visible{outline:2px solid #ecc0ff}
+body.cosmic-active .cosmic-connected-status{position:absolute;top:36%;left:12%;right:12%;text-align:center;padding:12px;color:#e9d9ff;font-size:14px;text-shadow:0 0 13px #ad58ff;pointer-events:none}
+body.cosmic-active.cosmic-scanning #cameraArea{display:block!important;position:fixed;z-index:101;inset:0;width:100%;max-width:none;height:100dvh;overflow:auto;margin:0;padding:18px;background:#060513f7;border:none;border-radius:0;box-sizing:border-box}
+body.cosmic-active.cosmic-scanning .camera-viewport{max-width:620px;margin:15vh auto 0;aspect-ratio:3/4;max-height:60dvh}
+body.cosmic-active.cosmic-scanning .camera-feedback{max-width:620px;margin:15px auto;color:#efe4ff;text-align:center}
+body.cosmic-active.cosmic-scanning #stopQrCamera{max-width:620px;margin:14px auto;display:block}
+@media(min-width:650px){body.cosmic-active #cosmicDevices{max-height:100svh;min-height:0;width:auto;height:100svh;aspect-ratio:853/1843}}
