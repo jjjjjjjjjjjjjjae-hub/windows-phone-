@@ -88,3 +88,126 @@ body.cosmic-active #cosmicDevices .cosmic-nav-hits{display:none!important}
 body.cosmic-active #cosmicDevices .nova-main-action[hidden],
 body.cosmic-active #cosmicDevices .nova-code-action[hidden],
 body.cosmic-active #cosmicDevices .cosmic-connected-status[hidden]{display:none!important}
+
+
+/* NOVA 22: true one-viewport mobile layout — no tall poster proportions. */
+body[data-platform="android"].cosmic-active{
+  height:100dvh!important;
+  overflow:hidden!important;
+}
+body[data-platform="android"].cosmic-active .app,
+body[data-platform="android"].cosmic-active main{
+  height:100dvh!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+body[data-platform="android"].cosmic-active #connection{
+  height:100dvh!important;
+  min-height:0!important;
+  max-height:100dvh!important;
+  overflow:hidden!important;
+}
+body[data-platform="android"].cosmic-active #cosmicDevices{
+  width:100%!important;
+  max-width:650px!important;
+  height:100dvh!important;
+  min-height:0!important;
+  max-height:100dvh!important;
+  aspect-ratio:auto!important;
+  margin:0 auto!important;
+  overflow:hidden!important;
+}
+body[data-platform="android"].cosmic-active #cosmicDevices .nova-layout{
+  height:100dvh!important;
+  min-height:0!important;
+  max-height:100dvh!important;
+  box-sizing:border-box!important;
+  display:grid!important;
+  grid-template-rows:auto minmax(0,1fr) auto!important;
+  padding:clamp(13px,2.5dvh,23px) 18px calc(clamp(102px,15dvh,140px) + env(safe-area-inset-bottom,0px))!important;
+}
+body[data-platform="android"].cosmic-active #cosmicDevices .nova-topbar{
+  min-height:36px;
+}
+body[data-platform="android"].cosmic-active #cosmicDevices .nova-content{
+  min-height:0!important;
+  height:100%;
+  max-height:100%;
+  flex:none!important;
+  justify-content:center!important;
+  padding:4px 0 0!important;
+}
+body[data-platform="android"].cosmic-active #cosmicDevices .nova-eyebrow{
+  font-size:clamp(7px,1.1dvh,9px)!important;
+  line-height:1.15;
+}
+body[data-platform="android"].cosmic-active #cosmicDevices .nova-emblem{
+  height:clamp(122px,24dvh,208px)!important;
+  max-height:27%!important;
+  flex-shrink:0;
+  width:min(100%,335px)!important;
+}
+body[data-platform="android"].cosmic-active #cosmicDevices .nova-emblem-caption{
+  bottom:1%!important;font-size:7px!important;
+}
+body[data-platform="android"].cosmic-active #cosmicDevices .nova-headline{
+  margin:2px auto 0!important;
+  max-width:330px;
+}
+body[data-platform="android"].cosmic-active #cosmicDevices .nova-headline h2{
+  font-size:clamp(26px,min(7.4vw,4.3dvh),37px)!important;
+  line-height:1.07!important;
+}
+body[data-platform="android"].cosmic-active #cosmicDevices .nova-headline p{
+  max-width:290px;
+  margin:8px auto 0!important;
+  font-size:clamp(10px,1.55dvh,12px)!important;
+  line-height:1.45!important;
+}
+body[data-platform="android"].cosmic-active #cosmicDevices .nova-actions{
+  margin-top:clamp(9px,1.8dvh,17px)!important;
+  gap:3px!important;
+  width:min(100%,320px)!important;
+}
+body[data-platform="android"].cosmic-active #cosmicDevices .nova-main-action{
+  min-height:46px!important;
+  padding:8px 13px!important;
+  border-radius:14px!important;
+  font-size:12px!important;
+}
+body[data-platform="android"].cosmic-active #cosmicDevices .nova-action-icon{
+  height:27px!important;width:27px!important;
+}
+body[data-platform="android"].cosmic-active #cosmicDevices .nova-code-action{
+  padding:6px 12px!important;min-height:30px!important;
+}
+body[data-platform="android"].cosmic-active #cosmicDevices .nova-bottom-detail{
+  margin:0 auto!important;
+  font-size:7px!important;
+  line-height:10px;
+}
+@media(max-height:700px){
+  body[data-platform="android"].cosmic-active #cosmicDevices .nova-layout{
+    padding:10px 16px calc(104px + env(safe-area-inset-bottom,0px))!important;
+  }
+  body[data-platform="android"].cosmic-active #cosmicDevices .nova-emblem{
+    height:clamp(112px,22dvh,151px)!important;
+  }
+  body[data-platform="android"].cosmic-active #cosmicDevices .nova-headline p{
+    margin-top:6px!important;
+  }
+}
+@media(max-height:540px){
+  body[data-platform="android"].cosmic-active{
+    overflow:auto!important;
+  }
+  body[data-platform="android"].cosmic-active #connection{
+    overflow-y:auto!important;
+  }
+  body[data-platform="android"].cosmic-active #cosmicDevices,
+  body[data-platform="android"].cosmic-active #cosmicDevices .nova-layout{
+    height:auto!important;
+    max-height:none!important;
+    min-height:540px!important;
+  }
+}
