@@ -66,9 +66,9 @@
     $('statusDot').classList.toggle('online', connected);
     $('connectionHeading').textContent = connected
       ? device : (platform === 'windows' ? 'Телефонды қос' : 'Ноутбукке қосыл');
-    $('connectionDescription').textContent = preview
-      ? (connected ? 'Осы бет ішінде интерфейсті тексеруге дайын.' : 'Браузерде жұптасу мен жіберуді тексер.')
-      : (connected ? 'Жеке Wi-Fi байланысы · TLS шифрлауы' : platform === 'windows' ? 'Жұптасу кодын телефондағы қолданбаға енгіз.' : 'Екі құрылғы бір Wi-Fi желісінде болуы керек.');
+    $('connectionDescription').textContent = browser
+      ? (connected ? 'Шифрланған WebRTC арнасы қосылды.' : 'Интернет арқылы қосыл. Бір Wi-Fi міндетті емес.')
+      : (connected ? 'Жеке Wi-Fi байланысы' : 'Құрылғыға қосылу керек.');
     $('openConnection').textContent = connected ? 'Басқару →' : 'Қосылу →';
     $('disconnectButton').disabled = !connected;
     $('demoConnect').disabled = connected;
@@ -199,7 +199,7 @@
 
   $('sendButton').onclick = async () => {
     if (busy) return;
-    if (!connected) { tab('connection'); feedback(preview ? 'Алдымен демо байланысты қос.' : 'Алдымен ноутбукке қосыл.', true, 'pairFeedback'); return; }
+    if (!connected) { tab('connection'); feedback('Алдымен ноутбукке қосыл.', true, 'pairFeedback'); return; }
     if (mode === 'text' && !$('textInput').value.trim()) { feedback('Мәтінді немесе кодыңды енгіз.', true); return; }
     if (mode === 'image' && !image) { feedback('Алдымен суретті таңда.', true); return; }
     busy = true; $('sendButton').disabled = true;
@@ -250,7 +250,7 @@
         tab('clipboard');
       } else {
         const host = $('hostInput').value.trim(), code = $('codeInput').value.trim();
-        if (!/^\\d{6}$/.test(code)) throw new Error('Ноутбуктағы 6 таңбалы кодты енгіз.');
+        if (!/^\d{6}$/.test(code)) throw new Error('Ноутбуктағы 6 таңбалы кодты енгіз.');
         const probe = await call('probe', { host });
         $('trustFingerprint').textContent = probe.fingerprint;
         const trusted = await new Promise(resolve => {
