@@ -20,6 +20,11 @@
     const panel = $('connectedDevices');
     if (!panel) return;
     panel.hidden = !connected;
+    const cosmicConnected = $('cosmicConnectedStatus');
+    if (cosmicConnected) {
+      cosmicConnected.hidden = !connected;
+      cosmicConnected.textContent = connected ? connectedPhone.name + ' · Онлайн' : '';
+    }
     const list = $('connectedDevicesList');
     const count = $('connectedDevicesCount');
     list.replaceChildren();
@@ -127,6 +132,7 @@
     cameraStream = null;
     cameraDetecting = false;
     $('cameraArea').hidden = true;
+    document.body.classList.remove('cosmic-scanning');
     $('startQrCamera').disabled = false;
   }
   function qrCodeFromValue(value) {
@@ -165,6 +171,7 @@
     }
     $('startQrCamera').disabled = true;
     $('cameraArea').hidden = false;
+    document.body.classList.add('cosmic-scanning');
     cameraMessage('Камераға рұқсат бер…');
     try {
       let stream;
@@ -245,12 +252,21 @@
   $('qrCameraCapture').onchange = event => scanQrImage(event.target.files?.[0]);
   $('qrImagePicker').onchange = event => scanQrImage(event.target.files?.[0]);
   $('startQrCamera').onclick = startQrCamera;
+  $('cosmicScan').onclick = () => {
+    if (connected) return;
+    startQrCamera();
+  };
+  $('cosmicClipboard').onclick = () => tab('clipboard');
+  $('cosmicDevicesTab').onclick = () => { if (!connected) startQrCamera(); };
+  $('cosmicHistory').onclick = () => tab('history');
+
   $('stopQrCamera').onclick = stopQrCamera;
   document.addEventListener('visibilitychange', () => { if (document.hidden) stopQrCamera(); });
   window.addEventListener('pagehide', stopQrCamera);
 
   function tab(id) {
     if (id !== 'connection' && cameraStream) stopQrCamera();
+    document.body.classList.toggle('cosmic-active', browser && platform === 'android' && id === 'connection');
     document.querySelectorAll('.page').forEach(page => { page.hidden = page.id !== id; });
     document.querySelectorAll('.nav').forEach(button => {
       button.classList.toggle('active', button.dataset.tab === id);
@@ -302,6 +318,9 @@
     $('deviceName').textContent = connected ? device : 'Құрылғы қосылмаған';
     $('statusText').textContent = connected ? ('Онлайн қосылды') : 'Қосылмаған';
     $('statusDot').classList.toggle('online', connected);
+    if (connected && browser && platform === 'android' && document.querySelector('#connection')?.hidden === false) {
+      stopQrCamera();
+    }
     $('connectionHeading').textContent = connected
       ? device : (platform === 'windows' ? 'Телефонды қос' : 'Ноутбукке қосыл');
     $('connectionDescription').textContent = browser
