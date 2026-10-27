@@ -4,7 +4,7 @@ on:
     paths: ['ui/**', 'tools/capture-ui.cjs', 'package*.json', '.github/workflows/interface.yml']
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   screenshot:
     runs-on: ubuntu-24.04
@@ -18,8 +18,15 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run screenshots
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: Bailanys-interface-screenshots
           path: docs/screenshots/*.png
           if-no-files-found: error
           retention-days: 30
+      - name: Save screenshots to a separate preview branch
+        run: |
+          git checkout -b "ui-screenshots-${GITHUB_RUN_ID}"
+          git add docs/screenshots
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Capture implemented Bailanys interface"
+          git push origin HEAD

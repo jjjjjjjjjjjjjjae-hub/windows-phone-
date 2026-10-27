@@ -12,11 +12,11 @@ const fs=require('fs');
   await page.goto('file://'+root+'/ui/index.html?platform='+platform);
   if(platform==='android') await page.locator('#textInput').fill('const message = "Сәлем, бро!";\nconsole.log(message);');
   await page.screenshot({path:root+'/docs/screenshots/'+platform+'.png'});
-  await page.getByRole('button',{name:'Байланыс',exact:true}).click();
+  await page.locator('.nav[data-tab="connection"]').click();
   if(!await page.locator('#connection').isVisible())throw Error('Connection navigation');
-  await page.getByRole('button',{name:'Жіберу тарихы',exact:true}).click();
+  await page.locator('.nav[data-tab="history"]').click();
   if(!await page.locator('#history').isVisible())throw Error('History navigation');
-  await page.getByRole('button',{name:'Ортақ буфер',exact:true}).click();
+  await page.locator('.nav[data-tab="clipboard"]').click();
   if(platform==='android'){
    await page.getByRole('tab',{name:'Сурет',exact:true}).click();
    if(!await page.locator('#imagePanel').isVisible())throw Error('Image tab');
