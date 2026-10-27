@@ -117,13 +117,15 @@
 
   function init(nextRole, callbacks) {
     role = nextRole; hooks = callbacks || {};
+    const identity = role === 'windows' ? randomCode() : null;
+    if (identity) hooks.onCode?.(identity);
     if (typeof window.Peer !== 'function') {
-      report('Онлайн модуль жүктелмеді. Интернетті тексеріп, бетті жаңарт.', true);
+      report('QR дайын, бірақ байланыс модулі жүктелмеді. Интернетті тексеріп, бетті жаңарт.', true);
       peerReadyReject(new Error('PeerJS жүктелмеді'));
       return;
     }
-    peer = role === 'windows' ? new Peer(randomCode(), { debug: 1 }) : new Peer({ debug: 1 });
-    peer.on('open', id => { peerReadyResolve(); if (role === 'windows') hooks.onCode?.(id); });
+    peer = role === 'windows' ? new Peer(identity, { debug: 1 }) : new Peer({ debug: 1 });
+    peer.on('open', id => { peerReadyResolve(); if (role === 'windows') { hooks.onCode?.(id); report('Онлайн қосылуға дайын. QR-кодты телефонмен сканерле.'); } });
     peer.on('connection', c => {
       if (role !== 'windows' || channel?.open) { c.on('open', () => c.close()); return; }
       setChannel(c);
