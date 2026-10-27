@@ -281,6 +281,7 @@ body[data-platform="android"] .received-content.has-content { min-height: 220px;
 .remote-controls>p:first-child { color: #b3bed7; font-size: 13px; line-height: 1.6; margin: 0 0 5px; }
 .remote-controls .full-button { min-height: 50px; }
 .remote-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.remote-actions[hidden] { display: none; }
 .remote-actions button {
   flex: 1; min-width: 96px; min-height: 42px;
   border: 1px solid var(--line-strong);
@@ -292,6 +293,7 @@ body[data-platform="android"] .received-content.has-content { min-height: 220px;
 .remote-actions button:hover { background: rgba(163, 174, 231, .16); }
 .remote-note { color: #8590ac; font-size: 11px; line-height: 1.55; margin: auto 0 0; padding-top: 15px; }
 .remote-app-link { display: inline-flex; width: fit-content; font-size: 12px; font-weight: 700; color: #cdbdff; text-underline-offset: 4px; }
+.remote-app-link[hidden] { display: none; }
 body[data-connected="true"][data-remote="active"] #remoteBadge { color: var(--green); border-color: rgba(154, 239, 193, .42); background: rgba(95, 183, 137, .12); }
 @media (max-width: 1050px) { .remote-layout { grid-template-columns: 1fr; } .remote-viewer { max-width: 390px; width: 100%; margin: auto; } }
 body[data-platform="android"] .remote-card { padding: 21px; border-radius: 20px; margin-top: 14px; }

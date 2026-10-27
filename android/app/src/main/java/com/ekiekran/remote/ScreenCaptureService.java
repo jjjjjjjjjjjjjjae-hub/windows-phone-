@@ -55,7 +55,7 @@ public final class ScreenCaptureService extends Service {
         Notification notification = new Notification.Builder(this, CHANNEL)
             .setSmallIcon(android.R.drawable.ic_menu_view)
             .setContentTitle(getString(R.string.capture_notification))
-            .setContentText("Тоқтату үшін осы хабарламаны бас")
+            .setContentText("Тоқтату әрекетін қолдан")
             .setOngoing(true)
             .addAction(new Notification.Action.Builder(android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.stop_capture), stopAction).build())
             .build();
