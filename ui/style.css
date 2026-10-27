@@ -9,3 +9,26 @@ body[data-platform=android] .sidebar{display:none}body[data-platform=android] .m
 
 /* Supplied gold infinity identity, shared by both device views. */
 body .brand-mark.gold-brand,body[data-platform] .mobile-brand .brand-mark.gold-brand{width:64px;height:40px;border-radius:10px;background:#090a08;box-shadow:0 0 20px #cda74a12;overflow:hidden}.gold-brand img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%}.brand:has(.gold-brand){gap:9px}
+
+
+/* Wide, purple-tinted identity artwork (keeps the original source image). */
+body .brand-mark.gold-brand,body[data-platform] .mobile-brand .brand-mark.gold-brand{
+ width:186px;height:62px;max-width:100%;border-radius:12px;background:#181325;
+ box-shadow:0 0 24px #ac86ff2e;border:1px solid #bba0ff37;flex-shrink:1;
+}
+body .brand-mark.gold-brand img{width:100%;height:100%;object-fit:fill;filter:grayscale(1) sepia(1) saturate(3) hue-rotate(212deg) brightness(1.16) contrast(1.04)}
+.brand:has(.gold-brand){flex-wrap:wrap}.brand-tagline{color:#9287ab;font-size:8px;letter-spacing:1.3px;line-height:1.5}
+body[data-platform] .mobile-brand .brand-mark.gold-brand{width:132px;height:46px}
+body[data-platform=android] .mobile-brand,body[data-platform=windows] .mobile-brand{font-size:0}
+body .image-picker{min-height:285px;width:100%;align-items:stretch}
+body .image-picker.has-image img{display:block;width:100%;max-width:none;max-height:none;aspect-ratio:16/9;object-fit:cover;border:1px solid #bba0ff2a}
+body .received-content img{display:block;width:100%;max-width:none;max-height:520px;object-fit:contain}
+body .image-actions{justify-content:center}
+body .online-code{font-size:clamp(14px,2.4vw,23px);letter-spacing:1.7px;overflow-wrap:anywhere;line-height:1.7;user-select:all}
+body[data-platform=windows] .preview-modes,body[data-platform=android] .preview-modes{display:none!important}
+#onlineApproval{max-width:420px;width:calc(100% - 30px);border-radius:18px;border:1px solid #c3a8ff77;background:#1c192a;color:#f0eafa;padding:28px;box-shadow:0 24px 100px #000a}
+#onlineApproval::backdrop{background:#050409c9;backdrop-filter:blur(12px)}
+#onlineApproval h2{font-size:22px;margin-bottom:16px}
+#onlineApproval p{font-size:13px;color:#bfb5d7;line-height:1.8;margin:0 0 20px}
+#onlineApproval .dialog-actions{display:flex;justify-content:flex-end;gap:10px}
+@media(max-width:480px){body[data-platform] .mobile-brand .brand-mark.gold-brand{width:120px;height:43px}body .image-picker.has-image img{aspect-ratio:16/10}}
