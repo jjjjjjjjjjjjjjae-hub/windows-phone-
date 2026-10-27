@@ -8,6 +8,7 @@
   <meta name="description" content="Телефон мен ноутбук арасында мәтін мен сурет жіберуге арналған ортақ кеңістік.">
   <title>Екі экран — құрылғылар</title>
   <link rel="stylesheet" href="style.css?v=origin1">
+  <link rel="stylesheet" href="refinements.css?v=aurora2">
   <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js" defer></script>
   <script src="vendor/qrcode.min.js" defer></script>
   <script src="vendor/jsQR.js" defer></script>
@@ -49,11 +50,11 @@
             <div class="connection-art" aria-hidden="true">
               <div class="art-halo"></div><div class="art-ring art-ring-a"></div><div class="art-ring art-ring-b"></div>
               <div class="art-phone"><span></span><i></i></div>
-              <svg class="art-flow" viewBox="0 0 460 210" fill="none" preserveAspectRatio="xMidYMid meet"><defs><linearGradient id="flowGradient" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#a788ff"/><stop offset=".5" stop-color="#e2b6ff"/><stop offset="1" stop-color="#81e5f3"/></linearGradient></defs><path class="flow-shadow" d="M68 105 C126 19 183 12 230 105 C277 198 334 191 392 105 C334 19 277 12 230 105 C183 198 126 191 68 105Z"/><path class="flow-path" d="M68 105 C126 19 183 12 230 105 C277 198 334 191 392 105 C334 19 277 12 230 105 C183 198 126 191 68 105Z"/></svg>
+              <svg class="art-flow" viewBox="0 0 460 210" fill="none" preserveAspectRatio="xMidYMid meet"><defs><linearGradient id="flowGradient" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#a788ff"/><stop offset=".5" stop-color="#e2b6ff"/><stop offset="1" stop-color="#81e5f3"/></linearGradient></defs><path class="flow-shadow" d="M68 105 C126 19 183 12 230 105 C277 198 334 191 392 105 C334 19 277 12 230 105 C183 198 126 191 68 105Z"/><path class="flow-path" d="M68 105 C126 19 183 12 230 105 C277 198 334 191 392 105 C334 19 277 12 230 105 C183 198 126 191 68 105Z"/><path class="flow-tracer" d="M68 105 C126 19 183 12 230 105 C277 198 334 191 392 105 C334 19 277 12 230 105 C183 198 126 191 68 105Z"/></svg>
               <div class="art-laptop"><span></span><i></i></div>
               <div class="art-spark s1"></div><div class="art-spark s2"></div><div class="art-spark s3"></div>
             </div>
-            <div class="display-bottom"><span>ТЕЛЕФОН</span><span class="display-route">● &nbsp;● &nbsp;●</span><span>НОУТБУК</span></div>
+            <div class="display-bottom"><span class="scene-label">ТЕЛЕФОН</span><span id="sceneStatus" class="display-route">КҮТУДЕ</span><span class="scene-label">НОУТБУК</span></div>
           </div>
           <div class="connection-side">
             <div class="status-card"><div class="section-overline">АҒЫМДАҒЫ КҮЙ</div><div class="status-content"><span class="status-orb" aria-hidden="true"><i></i></span><div><h2 id="connectionHeading">Құрылғы қосылмаған</h2><p id="connectionDescription">Қосу үшін төмендегі қадамды орында.</p></div></div><div class="status-line"><span>АРНА КҮЙІ</span><strong id="connectionStatus">ЖҰПТАСТЫРУ КҮТІЛУДЕ</strong></div></div>
