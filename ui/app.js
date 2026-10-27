@@ -223,7 +223,6 @@
     platform = value;
     document.body.dataset.platform = platform;
     const phone = platform === 'android';
-    $('platformLabel').textContent = phone ? 'ANDROID' : 'WINDOWS';
     $('senderPanel').hidden = !phone;
     $('receiverPanel').hidden = phone;
     $('androidPair').hidden = !phone;
