@@ -6,6 +6,7 @@
   const WINDOW = 16;
   const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let peer, channel, role, hooks = {}, pendingConnect, pendingSend, incoming = null, authenticated = false;
+  let remoteActive = false, remotePending = false, incomingFrame = null, frameOutstanding = false, frameSentAt = 0;
   let peerReadyResolve, peerReadyReject;
   let peerReady = new Promise((resolve, reject) => { peerReadyResolve = resolve; peerReadyReject = reject; });
   const isOpen = () => Boolean(channel?.open && authenticated);
@@ -34,6 +35,8 @@
       if (channel !== next) return;
       authenticated = false;
       incoming = null;
+      if (remoteActive) hooks.onRemoteStop?.();
+      remoteActive = false; remotePending = false; incomingFrame = null; frameOutstanding = false;
       rejectSend('Жіберілім үзілді. Қайта қосыл.');
       if (pendingConnect) { pendingConnect.reject(new Error('Құрылғы қосылмады.')); pendingConnect = null; }
       status(false);
@@ -90,6 +93,51 @@
       const os = typeof data.os === 'string' ? data.os.slice(0, 30) : fallback;
       hooks.onDevice?.({ name: name || fallback, os: os || fallback });
       return;
+    }
+    if (data.t === 'remote-request' && role === 'android') {
+      if (remoteActive || remotePending) return;
+      remotePending = true;
+      hooks.onRemoteRequest?.(); return;
+    }
+    if (data.t === 'remote-denied' && role === 'windows') {
+      remotePending = false;
+      hooks.onRemoteDenied?.(); return;
+    }
+    if (data.t === 'remote-start' && role === 'windows' && remotePending) {
+      remotePending = false; remoteActive = true; hooks.onRemoteStart?.(); return;
+    }
+    if (data.t === 'remote-stop') {
+      remoteActive = false; remotePending = false; incomingFrame = null; frameOutstanding = false;
+      hooks.onRemoteStop?.(); return;
+    }
+    if (data.t === 'remote-frame-start' && role === 'windows' && remoteActive) {
+      if (typeof data.id !== 'string' || data.id.length > 64 || !Number.isSafeInteger(data.length) ||
+          data.length < 1 || data.length > 500000 || !Number.isInteger(data.width) || !Number.isInteger(data.height) ||
+          data.width < 1 || data.height < 1 || data.width > 2500 || data.height > 4000) return;
+      incomingFrame = { id: data.id, length: data.length, width: data.width, height: data.height, parts: [], received: 0 };
+      return;
+    }
+    if (data.t === 'remote-frame-chunk' && role === 'windows' && incomingFrame?.id === data.id) {
+      if (typeof data.payload !== 'string' || data.payload.length > 12000 || incomingFrame.received + data.payload.length > incomingFrame.length) {
+        incomingFrame = null; return;
+      }
+      incomingFrame.parts.push(data.payload); incomingFrame.received += data.payload.length;
+      return;
+    }
+    if (data.t === 'remote-frame-end' && role === 'windows' && incomingFrame?.id === data.id) {
+      const frame = incomingFrame; incomingFrame = null;
+      if (frame.received !== frame.length) return;
+      const image = frame.parts.join('');
+      if (!/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(image)) return;
+      hooks.onRemoteFrame?.({ image, width: frame.width, height: frame.height });
+      c.send({ t: 'remote-frame-ack', id: frame.id });
+      return;
+    }
+    if (data.t === 'remote-frame-ack' && role === 'android') { frameOutstanding = false; return; }
+    if (data.t === 'remote-action' && role === 'android' && remoteActive) {
+      if (!['tap', 'swipe', 'back', 'home', 'recents'].includes(data.kind)) return;
+      if (['tap', 'swipe'].includes(data.kind) && (![data.x, data.y, data.x2 ?? 0, data.y2 ?? 0].every(v => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 1))) return;
+      hooks.onRemoteAction?.(data); return;
     }
     if (data.t === 'begin' && role === 'windows') {
       if (incoming || !Number.isSafeInteger(data.length) || data.length < 1 || data.length > SIZE_LIMIT ||
@@ -216,12 +264,47 @@
     rejectSend('Жіберілім тоқтатылды.');
     const c = channel;
     channel = null; incoming = null; authenticated = false;
+    if (remoteActive) hooks.onRemoteStop?.();
+    remoteActive = false; remotePending = false; incomingFrame = null; frameOutstanding = false;
     c?.close(); status(false);
+  }
+  function requestRemote() {
+    if (role !== 'windows' || !isOpen()) throw new Error('Алдымен телефонды қос.');
+    if (remoteActive || remotePending) return;
+    remotePending = true;
+    channel.send({ t: 'remote-request' });
+  }
+  function approveRemote() {
+    if (role !== 'android' || !isOpen() || !remotePending) return false;
+    remotePending = false; remoteActive = true; channel.send({ t: 'remote-start' }); return true;
+  }
+  function denyRemote() { if (role === 'android' && isOpen() && remotePending) { remotePending = false; channel.send({ t: 'remote-denied' }); } }
+  function stopRemote() {
+    if (isOpen()) channel.send({ t: 'remote-stop' });
+    const wasActive = remoteActive;
+    remoteActive = false; remotePending = false; incomingFrame = null; frameOutstanding = false;
+    if (wasActive) hooks.onRemoteStop?.();
+  }
+  function sendRemoteFrame(image, width, height) {
+    if (role !== 'android' || !isOpen() || !remoteActive || typeof image !== 'string' ||
+        !/^data:image\/jpeg;base64,/.test(image) || image.length > 500000) return false;
+    if (frameOutstanding && Date.now() - frameSentAt < 4000) return false;
+    const id = crypto.randomUUID(); frameOutstanding = true; frameSentAt = Date.now();
+    try {
+      channel.send({ t: 'remote-frame-start', id, length: image.length, width, height });
+      for (let i = 0; i < image.length; i += 12000) channel.send({ t: 'remote-frame-chunk', id, payload: image.slice(i, i + 12000) });
+      channel.send({ t: 'remote-frame-end', id });
+      return true;
+    } catch { frameOutstanding = false; return false; }
+  }
+  function sendRemoteAction(action) {
+    if (role !== 'windows' || !isOpen() || !remoteActive) return false;
+    channel.send({ t: 'remote-action', ...action }); return true;
   }
   window.OnlineLink = {
     init, connect, disconnect,
     sendText: text => send('text', text),
     sendImage: (dataUrl, name) => send('image', dataUrl, name),
-    isOpen
+    isOpen, requestRemote, approveRemote, denyRemote, stopRemote, sendRemoteFrame, sendRemoteAction
   };
 })();

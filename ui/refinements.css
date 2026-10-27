@@ -237,3 +237,67 @@ body[data-platform="android"] .received-content.has-content { min-height: 220px;
 @media (prefers-reduced-motion: reduce) {
   .flow-tracer, .art-phone, .art-laptop, .scan-button::after { animation: none; }
 }
+
+/* The viewer stays empty until a phone owner starts the native projection. */
+.remote-card {
+  margin-top: 20px;
+  padding: 26px 28px;
+  border: 1px solid rgba(188, 196, 248, .17);
+  border-radius: var(--radius);
+  background: linear-gradient(145deg, #151c31, #0e1628);
+  box-shadow: 0 22px 60px rgba(2, 4, 13, .17);
+}
+.remote-card .section-title { margin-bottom: 22px; }
+.remote-card .section-title h2 { font-size: 21px; }
+.remote-layout { display: grid; grid-template-columns: minmax(250px, 360px) minmax(0, 1fr); gap: 25px; }
+.remote-viewer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 510px;
+  border: 1px solid rgba(181, 174, 247, .26);
+  border-radius: 23px;
+  background: radial-gradient(circle at 50% 43%, rgba(140, 113, 230, .14), transparent 55%), #080d1b;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+}
+.remote-viewer::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border: 1px solid rgba(184, 180, 240, .08);
+  border-radius: 16px;
+  pointer-events: none;
+}
+.remote-empty { text-align: center; padding: 25px; color: var(--muted); }
+.remote-empty>span { display: block; color: var(--violet); font-size: 55px; line-height: 1; margin-bottom: 17px; }
+.remote-empty strong { display: block; color: var(--text); font-size: 14px; }
+.remote-empty p { max-width: 230px; margin: 7px auto 0; font-size: 11px; line-height: 1.5; }
+.remote-viewer img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; cursor: crosshair; }
+.remote-viewer img[hidden] { display: none; }
+.remote-controls { display: flex; flex-direction: column; align-items: stretch; gap: 13px; }
+.remote-controls>p:first-child { color: #b3bed7; font-size: 13px; line-height: 1.6; margin: 0 0 5px; }
+.remote-controls .full-button { min-height: 50px; }
+.remote-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.remote-actions[hidden] { display: none; }
+.remote-actions button {
+  flex: 1; min-width: 96px; min-height: 42px;
+  border: 1px solid var(--line-strong);
+  border-radius: 11px;
+  background: rgba(163, 174, 231, .08);
+  color: var(--text);
+  font-size: 11px; font-weight: 700;
+}
+.remote-actions button:hover { background: rgba(163, 174, 231, .16); }
+.remote-note { color: #8590ac; font-size: 11px; line-height: 1.55; margin: auto 0 0; padding-top: 15px; }
+.remote-app-link { display: inline-flex; width: fit-content; font-size: 12px; font-weight: 700; color: #cdbdff; text-underline-offset: 4px; }
+.remote-app-link[hidden] { display: none; }
+body[data-connected="true"][data-remote="active"] #remoteBadge { color: var(--green); border-color: rgba(154, 239, 193, .42); background: rgba(95, 183, 137, .12); }
+@media (max-width: 1050px) { .remote-layout { grid-template-columns: 1fr; } .remote-viewer { max-width: 390px; width: 100%; margin: auto; } }
+body[data-platform="android"] .remote-card { padding: 21px; border-radius: 20px; margin-top: 14px; }
+body[data-platform="android"] .remote-viewer { display: none; }
+body[data-platform="android"] .remote-layout { display: block; }
+body[data-platform="android"] .remote-actions { display: none; }
+body[data-platform="android"] .remote-controls>p:first-child { font-size: 12px; }

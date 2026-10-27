@@ -82,6 +82,15 @@ window.Peer = class {
     mobile.on('pageerror', error => errors.push('phone: ' + error.message));
     await mobile.setViewportSize({ width: 390, height: 844 });
     await mobile.addInitScript(() => Object.defineProperty(navigator, 'userAgent', { get: () => 'Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 Chrome/131.0 Mobile Safari/537.36' }));
+    await mobile.addInitScript(() => {
+      window.__nativeMessages = [];
+      window.PhoneControlNative = { postMessage(payload) {
+        const message = JSON.parse(payload);
+        window.__nativeMessages.push(message);
+        if (message.type === 'start') setTimeout(() => window.PhoneRemote.nativeStarted(), 20);
+        if (message.type === 'stop') setTimeout(() => window.PhoneRemote.nativeStopped(), 20);
+      } };
+    });
     await mobile.addInitScript(fakePeer);
     await mobile.goto(base);
     assert.equal(await mobile.locator('body').getAttribute('data-platform'), 'android');
@@ -130,11 +139,28 @@ window.Peer = class {
     assert.equal(await mobile.locator('.history-item').count(), 2);
     await mobile.setViewportSize({ width: 320, height: 700 });
     assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'No horizontal overflow on narrow phones');
+    await laptop.locator('.nav[data-tab="connection"]').click();
+    await mobile.locator('.nav[data-tab="connection"]').click();
+    await laptop.locator('#requestRemote').click();
+    await mobile.locator('#remoteApproval').waitFor({ state: 'visible' });
+    await mobile.locator('#remoteAccept').click();
+    await laptop.waitForFunction(() => document.body.dataset.remote === 'active');
+    const jpeg = await sharp({ create: { width: 120, height: 240, channels: 3, background: '#534bb1' } }).jpeg().toBuffer();
+    await mobile.evaluate(data => window.PhoneRemote.nativeFrame({ data, width: 120, height: 240 }), 'data:image/jpeg;base64,' + jpeg.toString('base64'));
+    await laptop.waitForFunction(() => document.getElementById('remoteScreen').naturalWidth === 120);
+    await laptop.locator('#remoteScreen').click({ position: { x: 50, y: 80 } });
+    await mobile.waitForFunction(() => window.__nativeMessages.some(m => m.type === 'gesture' && m.kind === 'tap'));
+    await laptop.locator('#remoteBack').click();
+    await mobile.waitForFunction(() => window.__nativeMessages.some(m => m.type === 'gesture' && m.kind === 'back'));
+    await laptop.screenshot({ path: path.join(output, 'windows-remote.png'), fullPage: true, animations: 'disabled' });
+    await laptop.locator('#stopRemote').click();
+    await mobile.waitForFunction(() => window.__nativeMessages.some(m => m.type === 'stop'));
+    await mobile.waitForFunction(() => document.body.dataset.remote === 'idle');
     await mobile.locator('.nav[data-tab="connection"]').click();
     await mobile.locator('#disconnectButton').click();
     await laptop.waitForFunction(() => document.body.dataset.connected === 'false');
     assert.deepEqual(errors, []);
-    console.log('Passed: desktop and phone layouts, navigation, QR code, approval, text/image transfer, safe rendering, clipboard, history, disconnect, narrow viewport.');
+    console.log('Passed: desktop and phone layouts, navigation, QR code, approval, text/image transfer, safe rendering, clipboard, history, simulated remote screen/tap/back/stop, disconnect, narrow viewport.');
     await context.close();
   } finally {
     await browser?.close();

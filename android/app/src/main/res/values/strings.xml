@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Екі экран</string>
+    <string name="accessibility_description">Ноутбукпен рұқсат етілген сеанс кезінде телефон экранын басу және сырғыту</string>
+    <string name="capture_notification">Телефон экраны бөлісіліп тұр</string>
+    <string name="stop_capture">Тоқтату</string>
+</resources>

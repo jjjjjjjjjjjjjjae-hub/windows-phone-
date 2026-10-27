@@ -5,16 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self' https://0.peerjs.com wss://0.peerjs.com https://*.peerjs.com wss://*.peerjs.com; object-src 'none'; base-uri 'none'">
   <meta name="theme-color" content="#080b15">
-  <meta name="description" content="Телефон мен ноутбук арасында мәтін мен сурет жіберуге арналған ортақ кеңістік.">
+  <meta name="description" content="Телефон мен ноутбукты қосып, мәтін мен сурет жібер және Android экранын басқар.">
   <title>Екі экран — құрылғылар</title>
   <link rel="stylesheet" href="style.css?v=origin1">
-  <link rel="stylesheet" href="refinements.css?v=aurora2">
+  <link rel="stylesheet" href="refinements.css?v=remote1">
   <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js" defer></script>
   <script src="vendor/qrcode.min.js" defer></script>
   <script src="vendor/jsQR.js" defer></script>
   <script src="effects.js?v=origin1" defer></script>
-  <script src="online.js?v=origin1" defer></script>
-  <script src="app.js?v=origin1" defer></script>
+  <script src="online.js?v=remote1" defer></script>
+  <script src="app.js?v=remote1" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -77,6 +77,20 @@
           </div>
         </div>
         <div class="connected-devices" id="connectedDevices"><div class="section-title"><div><span class="section-overline">02 / БАЙЛАНЫС</span><h2>Қосылған құрылғылар</h2></div><span id="connectedDevicesCount" class="count-pill">0 ҚҰРЫЛҒЫ</span></div><div id="connectedDevicesList" class="connected-devices-list" aria-live="polite"></div><button id="disconnectButton" class="disconnect-button" type="button" disabled>Байланысты ажырату ↗</button></div>
+        <div id="remoteCard" class="remote-card">
+          <div class="section-title"><div><span class="section-overline">03 / ТІКЕЛЕЙ БАСҚАРУ</span><h2>Телефонды басқару</h2></div><span id="remoteBadge" class="count-pill">ӨШІРУЛІ</span></div>
+          <div class="remote-layout">
+            <div class="remote-viewer" id="remoteViewer"><div id="remoteEmpty" class="remote-empty"><span aria-hidden="true">▯</span><strong>Телефон экраны осы жерде көрінеді</strong><p>Телефонда экранды бөлісуге рұқсат берілген соң.</p></div><img id="remoteScreen" alt="Телефонның тікелей экраны" draggable="false" hidden></div>
+            <div class="remote-controls"><p id="remoteDescription">Алдымен телефонды қос, кейін басқаруға сұрау жібер.</p>
+              <button id="requestRemote" class="primary full-button" type="button" disabled><span>Басқаруды сұрау</span><span aria-hidden="true">↗</span></button>
+              <button id="openAccessibility" class="secondary full-button" type="button" hidden>Басқару рұқсатын ашу ↗</button>
+              <button id="stopRemote" class="secondary full-button" type="button" hidden>Басқаруды тоқтату ↗</button>
+              <div id="remoteActions" class="remote-actions" hidden><button id="remoteBack" type="button">← Артқа</button><button id="remoteHome" type="button">⌂ Басты бет</button><button id="remoteRecents" type="button">▣ Соңғы</button></div>
+              <p class="remote-note">Экранды бөлісу мен басу рұқсатын телефон иесі өзі қосады. Телефоннан кез келген уақытта тоқтата аласың.</p>
+              <a id="androidAppLink" class="remote-app-link" href="https://github.com/jjjjjjjjjjjjjjae-hub/windows-phone-/actions/workflows/android.yml" target="_blank" rel="noopener" hidden>Android APK · Actions ↗</a>
+            </div>
+          </div><p id="remoteFeedback" class="feedback" role="status" aria-live="polite"></p>
+        </div>
         <p id="pairFeedback" class="feedback" role="status" aria-live="polite"></p>
       </section>
 
@@ -104,5 +118,6 @@
   <input id="browserImageInput" type="file" accept="image/png,image/jpeg" hidden><canvas id="transferCanvas" aria-hidden="true"></canvas>
   <dialog id="trustDialog"><h2>Қауіпсіздік таңбасын салыстыр</h2><p>Ноутбуктағы таңбамен дәл сәйкес келе ме?</p><code id="trustFingerprint"></code><div class="dialog-actions"><button id="rejectTrust" class="secondary" type="button">Бас тарту</button><button id="confirmTrust" class="primary" type="button">Растау</button></div></dialog>
   <dialog id="onlineApproval"><div class="approval-symbol" aria-hidden="true">◇</div><h2>Телефон қосылғысы келеді</h2><p>Бұл өз телефоның болса, байланысқа рұқсат бер.</p><div class="dialog-actions"><button id="onlineReject" class="secondary" type="button">Қабылдамау</button><button id="onlineAccept" class="primary" type="button">Рұқсат беру</button></div></dialog>
+  <dialog id="remoteApproval"><div class="approval-symbol" aria-hidden="true">▯</div><h2>Экранды басқаруға рұқсат?</h2><p>Ноутбук телефон экранын көреді және басу мен сырғыту пәрмендерін жібере алады. Android жүйесі экранды бөлісуге бөлек рұқсат сұрайды.</p><div class="dialog-actions"><button id="remoteReject" class="secondary" type="button">Бас тарту</button><button id="remoteAccept" class="primary" type="button">Рұқсат беру</button></div></dialog>
 </body>
 </html>
