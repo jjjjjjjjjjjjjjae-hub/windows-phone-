@@ -1,16 +1,19 @@
 name: Interface screenshots
 on:
   push:
-    paths: ['ui/**', 'tools/capture-ui.cjs', 'package*.json', '.github/workflows/interface.yml']
+    branches: [main]
+    paths: ['ui/**', 'index.html', 'open-preview.js', '.nojekyll', 'tools/capture-ui.cjs', 'package*.json', '.github/workflows/interface.yml']
+  pull_request:
+    paths: ['ui/**', 'index.html', 'open-preview.js', 'tools/capture-ui.cjs', 'package*.json', '.github/workflows/interface.yml']
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 jobs:
   screenshot:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -24,9 +27,3 @@ jobs:
           path: docs/screenshots/*.png
           if-no-files-found: error
           retention-days: 30
-      - name: Save screenshots to a separate preview branch
-        run: |
-          git checkout -b "ui-screenshots-${GITHUB_RUN_ID}"
-          git add docs/screenshots
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Capture implemented Bailanys interface"
-          git push origin HEAD

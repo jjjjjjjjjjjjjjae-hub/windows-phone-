@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'">
-  <title>Байланыс</title>
+  <meta name="description" content="Байланыс: телефон мен ноутбук интерфейсін браузерде тексеру.">
+  <meta name="theme-color" content="#0866db">
+  <title>Байланыс — интерфейсті тексеру</title>
   <link rel="stylesheet" href="style.css">
   <script src="app.js" defer></script>
 </head>
@@ -22,7 +24,11 @@
     <span class="version">Байланыс · 0.1.0</span>
   </aside>
   <main>
-    <header><div class="mobile-brand"><span class="brand-mark">↔</span>Байланыс</div><span class="platform" id="platformLabel">WINDOWS</span><span id="environment" class="environment" hidden>Интерфейс көрінісі</span></header>
+    <header><div class="mobile-brand"><span class="brand-mark">↔</span>Байланыс</div><span class="platform" id="platformLabel">WINDOWS</span><span id="environment" class="environment" hidden>Интерфейс сынағы</span></header>
+    <div id="previewToolbar" class="preview-toolbar" hidden>
+      <div class="preview-top"><strong>Браузердегі сынақ <span class="demo-badge">ДЕМО</span></strong><div class="preview-modes" role="group" aria-label="Құрылғы көрінісі"><button id="previewAndroid" aria-pressed="false">Телефон</button><button id="previewWindows" aria-pressed="false">Ноутбук</button></div></div>
+      <p>Демо байланысты қосып, мәтін не сурет жібер. Содан кейін «Ноутбук» көрінісінен нәтижесін тексер. Бұл сынақ бір бет ішінде өтеді.</p>
+    </div>
     <section id="clipboard" class="page">
       <div class="eyebrow" id="pageEyebrow">ТЕЛЕФОННАН НОУТБУККЕ</div>
       <h1>Ортақ буфер</h1>
@@ -33,16 +39,17 @@
         <div id="textPanel"><label class="editor-label" for="textInput">Ноутбукке жіберетін мәтінің</label><div class="editor"><div class="editor-top"><span class="editor-dots">● ● ●</span><span>Мәтін / код</span><span id="charCount">0 таңба</span></div><textarea id="textInput" maxlength="200000" spellcheck="false" placeholder="Мәтінді немесе кодыңды осында енгіз..."></textarea></div></div>
         <div id="imagePanel" hidden><div class="image-picker" id="imagePicker"><div class="image-glyph">▧</div><strong>Суретті таңда</strong><span>PNG немесе JPEG · 20 МБ дейін</span><button class="secondary" id="pickImage">Галереяны ашу</button><img id="imagePreview" alt="Жіберілетін сурет" hidden><span id="imageName"></span></div></div>
         <button class="primary send-button" id="sendButton"><span>Ноутбук буферіне жіберу</span><span>↗</span></button>
-        <div class="hint"><span>▣</span><span>Жіберген соң ноутбукта <kbd>Ctrl</kbd> + <kbd>V</kbd> бас.</span></div>
+        <div class="hint"><span>▣</span><span id="transferHint">Жіберген соң ноутбукта <kbd>Ctrl</kbd> + <kbd>V</kbd> бас.</span></div>
       </div>
       <div id="receiverPanel" hidden><div class="receiver-head"><h2>Соңғы қабылданған</h2><span class="badge" id="receiveBadge">Күтуде</span></div><div class="received-content" id="receivedContent"><div class="empty-icon">▣</div><strong>Телефоннан жібер</strong><p>Мәтін, код немесе сурет осында көрінеді.<br>Содан кейін Ctrl + V арқылы қоя аласың.</p></div><button class="secondary" id="copyAgain" disabled>Буферге қайта көшіру</button><label class="switch-row"><input type="checkbox" id="autoCopy" checked><span>Қабылданғанды буферге автоматты көшіру</span></label></div>
       <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
-      <div class="privacy"><span>◇</span><div><strong>Тек өз құрылғыларың арасында</strong><p>Жұптасуды ноутбукта растайсың. Мазмұн бұлтқа жүктелмейді.</p></div></div>
+      <div class="privacy"><span>◇</span><div><strong id="privacyTitle">Тек өз құрылғыларың арасында</strong><p id="privacyText">Жұптасуды ноутбукта растайсың. Мазмұн бұлтқа жүктелмейді.</p></div></div>
     </section>
-    <section id="connection" class="page" hidden><div class="eyebrow">ҚҰРЫЛҒЫЛАРДЫ ЖҰПТАСТЫРУ</div><h1>Байланыс</h1><p class="subtitle">Телефон мен ноутбук бір Wi-Fi желісінде болсын.</p><div id="androidPair"><label class="field">Ноутбук IP мекенжайы<input id="hostInput" inputmode="decimal" placeholder="192.168.1.5" autocomplete="off"></label><label class="field">Ноутбуктағы 6 таңбалы код<input id="codeInput" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="off"></label><button class="primary" id="pairButton">Ноутбукке қосылу</button><p class="form-note">Қосылғанда екі экрандағы қауіпсіздік таңбасын салыстыр.</p></div><div id="windowsPair" hidden><label class="field">Телефонға енгізетін IP<input id="localAddresses" readonly value="EXE ашылғанда көрсетіледі"></label><div class="pair-card"><span>ЖҰПТАСТЫРУ КОДЫ</span><strong id="pairCode">— — — — — —</strong><p>Осы кодты телефондағы қолданбаға енгіз.</p></div><label class="field">Қауіпсіздік таңбасы<input id="fingerprint" readonly value="EXE ашылғанда көрсетіледі"></label><p class="form-note">Алғаш қосылғанда Windows сұраса, жеке Wi-Fi желісіне рұқсат бер.</p></div><button class="secondary disconnect" id="disconnectButton">Байланысты ажырату</button><p id="pairFeedback" class="feedback" aria-live="polite"></p></section>
+    <section id="connection" class="page" hidden><div class="eyebrow">ҚҰРЫЛҒЫЛАРДЫ ЖҰПТАСТЫРУ</div><h1>Байланыс</h1><p class="subtitle">Телефон мен ноутбук бір Wi-Fi желісінде болсын.</p><div id="demoPair" class="demo-pair" hidden><span class="demo-badge">ИНТЕРФЕЙС СЫНАҒЫ</span><h2>Демо байланыс</h2><p>Батырманы басып, жұптасқан құрылғылардың интерфейсін тексер. Бұл режим нақты телефонға немесе ноутбукке қосылмайды.</p><button class="primary" id="demoConnect">Демо байланысты қосу</button><p class="form-note">Мәтін мен сурет осы бет ішінде ғана көрсетіледі. Бетті жаңартсаң, сынақ деректері тазарады.</p></div><div id="androidPair"><label class="field">Ноутбук IP мекенжайы<input id="hostInput" inputmode="decimal" placeholder="192.168.1.5" autocomplete="off"></label><label class="field">Ноутбуктағы 6 таңбалы код<input id="codeInput" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="off"></label><button class="primary" id="pairButton">Ноутбукке қосылу</button><p class="form-note">Қосылғанда екі экрандағы қауіпсіздік таңбасын салыстыр.</p></div><div id="windowsPair" hidden><label class="field">Телефонға енгізетін IP<input id="localAddresses" readonly value="EXE ашылғанда көрсетіледі"></label><div class="pair-card"><span>ЖҰПТАСТЫРУ КОДЫ</span><strong id="pairCode">— — — — — —</strong><p>Осы кодты телефондағы қолданбаға енгіз.</p></div><label class="field">Қауіпсіздік таңбасы<input id="fingerprint" readonly value="EXE ашылғанда көрсетіледі"></label><p class="form-note">Алғаш қосылғанда Windows сұраса, жеке Wi-Fi желісіне рұқсат бер.</p></div><button class="secondary disconnect" id="disconnectButton">Байланысты ажырату</button><p id="pairFeedback" class="feedback" aria-live="polite"></p></section>
     <section id="history" class="page" hidden><div class="eyebrow">ОСЫ СЕССИЯ</div><h1>Жіберу тарихы</h1><p class="subtitle">Соңғы 10 әрекет. Мазмұн дискіге сақталмайды.</p><div id="historyList" class="history-list"><p class="empty-history">Әзірге ештеңе жіберілген жоқ.</p></div></section>
     <footer><span class="footer-dot"></span><span>Жеке байланыс</span><span class="footer-right">Android ↔ Windows</span></footer>
   </main>
 </div>
+<input type="file" id="browserImageInput" accept="image/png,image/jpeg" hidden>
 <dialog id="trustDialog"><h2>Қауіпсіздік таңбасын салыстыр</h2><p>Мына таңба ноутбуктағы «Байланыс» бөлімінде дәл осылай көрсетілген бе?</p><code id="trustFingerprint"></code><div class="dialog-actions"><button class="secondary" id="rejectTrust">Бас тарту</button><button class="primary" id="confirmTrust">Иә, бірдей</button></div></dialog>
 </body></html>
