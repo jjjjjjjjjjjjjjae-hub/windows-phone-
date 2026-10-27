@@ -1,0 +1,349 @@
+
+/* STELLAR 20 — dedicated Android visual layer. Desktop remains unchanged. */
+body[data-platform="android"]{
+  --stellar-cyan:#69d9ff;--stellar-violet:#b454ff;--stellar-pink:#ff70ec;
+  --stellar-white:#f7f2ff;--stellar-ink:#05051b;
+  background:#030417;color:var(--stellar-white);
+}
+body[data-platform="android"] .ambient{display:none}
+body[data-platform="android"] main{
+  position:relative;isolation:isolate;min-height:100dvh;
+  background:radial-gradient(ellipse 92% 31% at 78% -9%,#4712ba68,transparent 84%),
+    radial-gradient(ellipse 73% 45% at -24% 52%,#2915a74a,transparent 81%),
+    radial-gradient(ellipse 77% 35% at 108% 92%,#15239945,transparent 83%),
+    linear-gradient(167deg,#030415,#060622 44%,#03051c 100%);
+}
+body[data-platform="android"] .stellar-sky{
+  position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0;
+  background:
+  radial-gradient(1px 1px at 12% 9%,#d9a2ffac 99%,transparent),
+  radial-gradient(1px 1px at 81% 18%,#83c7ff98 99%,transparent),
+  radial-gradient(1px 1px at 41% 67%,#b66dff9c 99%,transparent),
+  radial-gradient(2px 2px at 80% 86%,#d996ff99 99%,transparent);
+}
+body[data-platform="android"] .stellar-sky i{
+  position:absolute;display:block;border-radius:50%;width:var(--d);height:var(--d);
+  left:var(--x);top:var(--y);opacity:.12;background:#deb1ff;
+  box-shadow:0 0 6px #b637ff,0 0 17px #6023ff;
+  animation:stellar-twinkle var(--t) ease-in-out var(--delay) infinite alternate;
+}
+body[data-platform="android"] main > header,
+body[data-platform="android"] main > .page,
+body[data-platform="android"] main > footer{position:relative;z-index:1}
+body[data-platform="android"] main > header{
+  margin:0 auto;padding:19px 23px 8px;height:77px;align-items:center;
+}
+body[data-platform="android"] .mobile-brand .brand-mark.animated-infinity{
+  width:156px!important;height:47px!important;filter:drop-shadow(0 0 9px #af40ff35);
+}
+body[data-platform="android"] .mobile-brand .brand-mark.animated-infinity img{
+  filter:hue-rotate(218deg) saturate(1.55) brightness(1.16)!important;
+}
+body[data-platform="android"] #clipboard.page,
+body[data-platform="android"] #history.page{
+  width:100%;max-width:650px;padding:10px 19px 182px!important;
+}
+body[data-platform="android"] #clipboard .hero{
+  isolation:isolate;padding:23px 1px 4px;margin:0 0 28px;min-height:222px;
+}
+body[data-platform="android"] #clipboard .hero::before{
+  content:"";position:absolute;right:-43px;top:35px;width:226px;height:190px;z-index:-1;
+  border-radius:50%;background:radial-gradient(ellipse,#5112e04b,transparent 71%);
+  filter:blur(15px);pointer-events:none;
+}
+body[data-platform="android"] #clipboard .hero .eyebrow{
+  position:relative;font-size:9px;letter-spacing:2.1px;color:#c8b9ed;
+  font-weight:650;margin:28px 0 15px;
+}
+body[data-platform="android"] #clipboard .hero .eyebrow>span{
+  width:6px;height:6px;background:#65e5ff;box-shadow:0 0 12px #4beaff;
+}
+body[data-platform="android"] #clipboard .hero h1{
+  position:relative;z-index:2;font-size:clamp(37px,9.4vw,55px);letter-spacing:-2.6px;
+  line-height:1.08;font-weight:720;text-shadow:0 4px 24px #09052d;
+}
+body[data-platform="android"] #clipboard .hero h1>span{
+  background:linear-gradient(96deg,#f7e4ff 4%,#f0acff 46%,#93d8ff 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+body[data-platform="android"] #clipboard .hero .subtitle{
+  position:relative;z-index:2;font-size:12px!important;margin:14px 0 0!important;
+  color:#afa7d6;line-height:1.7;max-width:270px;
+}
+body[data-platform="android"] #clipboard .hero .hero-spark{display:none}
+body[data-platform="android"] .stellar-status{
+  display:flex;align-items:center;gap:8px;width:max-content;max-width:100%;
+  padding:8px 11px;border:1px solid #bf79ff46;border-radius:999px;
+  background:linear-gradient(105deg,#29154bb3,#10133685);font-size:9px;
+  letter-spacing:.8px;color:#e8d0ff;box-shadow:inset 0 1px #ffffff12,0 0 19px #811afa1e;
+  backdrop-filter:blur(10px);white-space:nowrap;
+}
+body[data-platform="android"] .stellar-status .stellar-led{
+  width:7px;height:7px;flex:0 0 7px;border-radius:50%;
+  background:#bca5e2;box-shadow:0 0 9px #a27aff66;
+}
+body[data-platform="android"] .stellar-status small{
+  font-size:8px;color:#9f99d8;border-left:1px solid #cc9cff36;
+  padding-left:8px;margin-left:1px;
+}
+body[data-platform="android"][data-connected="true"] .stellar-status .stellar-led{
+  background:#7cfac8;box-shadow:0 0 11px 2px #46e9d5a1;
+  animation:stellar-led 2.5s ease-in-out infinite;
+}
+body[data-platform="android"] .stellar-orbit{
+  position:absolute;right:-9px;top:47px;width:138px;height:138px;z-index:0;opacity:.84;
+  pointer-events:none;filter:drop-shadow(0 0 22px #8130ff5e);
+  animation:stellar-bob 6s ease-in-out infinite alternate;
+}
+body[data-platform="android"] .stellar-orbit::before{
+  content:"";position:absolute;inset:22%;border:1px solid #c7a3ffab;
+  border-radius:50%;background:radial-gradient(circle at 35% 30%,#dec8ff,#9c47f9 16%,#5317b3 46%,#130e48 76%);
+  box-shadow:inset -6px -7px 17px #0a063b,0 0 21px #aa2cffbd,0 0 45px #6b16ff6e;
+}
+body[data-platform="android"] .stellar-orbit::after{
+  content:"";position:absolute;left:-5%;top:40%;width:110%;height:26%;
+  border:2px solid #b876ff;border-radius:50%;
+  transform:rotate(-25deg);box-shadow:0 0 14px #a62eff,0 0 24px #a02dfc5a;
+}
+body[data-platform="android"] .stellar-orbit i{
+  position:absolute;right:14%;top:11%;height:5px;width:5px;border-radius:50%;
+  background:#fff;box-shadow:0 0 8px 3px #be87ff,0 0 18px #ad32ff;
+}
+body[data-platform="android"] #clipboard .connection-strip{
+  position:relative;gap:13px;display:flex;align-items:center;
+  padding:17px 13px 17px 14px;margin:0 0 20px;
+  border:1px solid #bc72fd4a;border-radius:21px;
+  background:linear-gradient(115deg,#31145cbf,#101636c4 63%,#110e31da);
+  box-shadow:0 16px 40px #00000045,inset 0 1px #f4daff18,0 0 28px #a124ff17;
+  overflow:hidden;
+}
+body[data-platform="android"] #clipboard .connection-strip::before{
+  content:"";position:absolute;left:5%;right:5%;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,#cf9cff9e,transparent);
+}
+body[data-platform="android"] #clipboard .connection-symbol{
+  display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;
+  border-radius:14px;background:radial-gradient(circle at 28% 25%,#b73fff6a,#29146e 74%);
+  border:1px solid #dc9aff66;color:#f6d8ff;font-size:29px;box-shadow:0 0 22px #8c2cff66;
+}
+body[data-platform="android"] #clipboard .connection-strip strong{font-size:12px;line-height:1.4;color:#f2e4ff}
+body[data-platform="android"] #clipboard .connection-strip span{font-size:10px;color:#ada2d3;margin-top:4px;line-height:1.45}
+body[data-platform="android"] #clipboard .connection-strip .text-button{
+  border:1px solid #dc9aff47;flex:0 0 auto;margin:0;padding:10px 10px;
+  font-size:10px;background:#9b4eff24;color:#f5d8ff;border-radius:11px;
+}
+body[data-platform="android"] #clipboard .workspace{display:flex;flex-direction:column;gap:17px}
+body[data-platform="android"] #clipboard .transfer-stage{
+  order:-1;position:relative;height:122px;min-height:122px;
+  border-radius:23px;border:1px solid #7e80ff4d;padding:12px 16px;
+  overflow:hidden;background:
+    radial-gradient(ellipse 55% 130% at 18% 45%,#5d1bc18c,transparent 90%),
+    radial-gradient(ellipse 55% 130% at 90% 4%,#0b74b25e,transparent 95%),
+    linear-gradient(125deg,#140b3d,#050c2a 72%);
+  box-shadow:inset 0 1px #ffffff1a,0 12px 35px #0006,0 0 24px #5830c524;
+}
+body[data-platform="android"] #clipboard .transfer-stage::after{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.6;
+  background:linear-gradient(115deg,transparent 30%,#a678ff1b 48%,transparent 68%);
+  transform:translateX(-110%);animation:stellar-sweep 8s linear infinite;
+}
+body[data-platform="android"] #clipboard .stage-top{left:14px;right:14px;top:12px;color:#c4addf}
+body[data-platform="android"] #clipboard .orbit-scene{
+  transform:scale(.66);transform-origin:center;width:138px;height:132px;
+  margin:-3px -8px 0 -27px;z-index:2;
+}
+body[data-platform="android"] #clipboard .transfer-core{background:linear-gradient(140deg,#bd7dff,#5133cdbb);border:1px solid #ecc1ff8a;box-shadow:0 0 27px #a354fc7a,inset 0 0 8px #ffffff30}
+body[data-platform="android"] #clipboard .orbit{border-color:#d7aaff50}
+body[data-platform="android"] #clipboard .stage-caption{position:relative;z-index:2;margin:18px 0 0 0;flex:1;text-align:left}
+body[data-platform="android"] #clipboard .stage-caption strong{font-size:14px;line-height:1.35;color:#f4ecff;font-weight:650}
+body[data-platform="android"] #clipboard .stage-caption p{font-size:10px;color:#b7a9de;margin-top:5px}
+body[data-platform="android"] #clipboard .stage-route{display:none}
+body[data-platform="android"] #clipboard .transfer-card{
+  position:relative;border-radius:25px;padding:19px 16px 22px;
+  border:1px solid #7a68d45c;
+  background:linear-gradient(153deg,#181342ed 0%,#10112cef 54%,#100a2c 100%);
+  box-shadow:0 20px 53px #0008,inset 0 1px #f5e6ff24,0 0 32px #5724e21c;
+  backdrop-filter:blur(15px);
+}
+body[data-platform="android"] #clipboard .transfer-card::before{
+  content:"";height:1px;position:absolute;left:14%;right:14%;top:0;
+  background:linear-gradient(90deg,transparent,#dfb3ffda,transparent);
+}
+body[data-platform="android"] #clipboard .segmented{
+  display:grid;grid-template-columns:1fr 1fr;gap:6px;
+  padding:5px;margin:0 0 23px;background:#070a23b9;border:1px solid #c9a2ff22;
+  border-radius:14px;
+}
+body[data-platform="android"] #clipboard .segmented button{
+  display:flex;align-items:center;justify-content:center;min-width:0;
+  font-size:11px;padding:12px 5px;gap:8px;border-radius:10px;
+  color:#a8a1d3;transition:background .25s,color .25s,box-shadow .25s;
+}
+body[data-platform="android"] #clipboard .segmented button.selected{
+  background:linear-gradient(105deg,#7b37c48a,#3c33a380);
+  color:#fff;box-shadow:inset 0 1px #ffffff2d,0 0 18px #9f41ff34;
+}
+body[data-platform="android"] #clipboard .segmented button span{font-size:17px;color:#d5adff}
+body[data-platform="android"] #clipboard .editor-label{
+  font-size:11px;color:#e0d8f6;font-weight:550;margin:0 0 12px;letter-spacing:.15px;
+}
+body[data-platform="android"] #clipboard .editor{
+  border-radius:16px;border:1px solid #856ed950;
+  background:linear-gradient(140deg,#080d2de8,#070921c9);box-shadow:inset 0 0 32px #1c155c8f;
+}
+body[data-platform="android"] #clipboard .editor:focus-within{
+  border-color:#c184ffba;box-shadow:0 0 0 3px #963aff21,inset 0 0 28px #3120735a;
+}
+body[data-platform="android"] #clipboard .editor-top{
+  display:flex;gap:8px;align-items:center;padding:12px;border-bottom:1px solid #9872ff26;
+  color:#a79acb;letter-spacing:1px;
+}
+body[data-platform="android"] #clipboard .editor-dots{color:#c25fff}
+body[data-platform="android"] #clipboard #charCount{margin-left:auto;white-space:nowrap}
+body[data-platform="android"] #clipboard textarea{
+  color:#eee5ff;font-size:13px;padding:16px;min-height:177px;line-height:1.65;
+}
+body[data-platform="android"] #clipboard textarea::placeholder{color:#78739f;font-size:12px}
+body[data-platform="android"] #clipboard .image-picker{
+  min-height:232px;border-radius:16px;border:1px dashed #b17fff6e;
+  background:radial-gradient(ellipse 82% 68% at 50% 10%,#4a217f56,transparent),#090b24;
+}
+body[data-platform="android"] #clipboard .image-glyph{
+  filter:drop-shadow(0 0 15px #bc57ff89);color:#d59dff;
+}
+body[data-platform="android"] #clipboard .image-empty strong{color:#f4e5ff}
+body[data-platform="android"] #clipboard .image-empty>span{color:#a79bc6}
+body[data-platform="android"] #clipboard .send-button{
+  position:relative;overflow:hidden;min-height:56px;
+  border:1px solid #fbeaff70;border-radius:16px;margin-top:18px;
+  color:#fff;font-size:12px;font-weight:700;text-shadow:0 1px 6px #330b7b;
+  background:linear-gradient(106deg,#8227ef 0%,#ba4bfa 48%,#647aff 100%);
+  box-shadow:0 9px 30px #833bff73,inset 0 1px #ffffff6a;
+}
+body[data-platform="android"] #clipboard .send-button::before{
+  content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 25%,#ffffff38 49%,transparent 75%);
+  transform:translateX(-120%);transition:transform .75s ease;pointer-events:none;
+}
+body[data-platform="android"] #clipboard .send-button:active::before{transform:translateX(120%)}
+body[data-platform="android"] #clipboard .send-icon{
+  color:#fff;background:#ffffff2f;box-shadow:inset 0 1px #ffffff4d;
+}
+body[data-platform="android"] #clipboard .hint{margin-top:17px;color:#a3a1cf;font-size:9px}
+body[data-platform="android"] #clipboard .feedback:not(:empty){
+  border:1px solid #8c73ed4a;border-radius:12px;padding:11px 13px;background:#0b1036;color:#bce8ff;
+}
+body[data-platform="android"] #clipboard .feedback.error{border-color:#ff8fa64d;color:#ffa8bb}
+body[data-platform="android"] #clipboard .privacy{
+  margin-top:10px;border-radius:17px;padding:16px 12px;background:#11133378;
+  border:1px solid #bd90ff1f;align-items:flex-start;
+}
+body[data-platform="android"] #clipboard .privacy strong{font-size:10px;color:#d8cafd}
+body[data-platform="android"] #clipboard .privacy p{font-size:9px;color:#8c87b9}
+body[data-platform="android"] #clipboard .privacy>span:first-child{color:#ae83ff}
+body[data-platform="android"] #history.page{min-height:calc(100dvh - 78px)}
+body[data-platform="android"] #history .stellar-history-kicker{
+  display:inline-flex;align-items:center;gap:9px;font-size:10px;
+  letter-spacing:2px;color:#c4b6ed;margin-top:22px;
+}
+body[data-platform="android"] #history .stellar-history-kicker::before{
+  content:"";width:7px;height:7px;border-radius:50%;background:#9d7bff;
+  box-shadow:0 0 10px #ae42ff;
+}
+body[data-platform="android"] #history>.eyebrow{display:none}
+body[data-platform="android"] #history h1{
+  margin:19px 0 10px;max-width:280px;line-height:1.02;
+  font-size:clamp(36px,10vw,52px);letter-spacing:-1.8px;font-weight:720;
+  background:linear-gradient(120deg,#fff 16%,#e3baff 67%,#8dcfff);
+  background-clip:text;-webkit-background-clip:text;color:transparent;
+}
+body[data-platform="android"] #history>.subtitle{margin:15px 0 0!important;color:#a9a0ca;font-size:12px!important}
+body[data-platform="android"] #history .history-list{
+  margin:27px 0 0;border:0;display:grid;gap:12px;
+}
+body[data-platform="android"] #history .empty-history{
+  position:relative;min-height:280px;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:31px 22px;border-radius:26px;border:1px solid #8c59ed55;
+  background:radial-gradient(ellipse 67% 54% at 51% 28%,#5a1dab70,transparent 89%),
+    linear-gradient(155deg,#17123cba,#080a25ef);
+  box-shadow:inset 0 1px #f7d5ff18,0 20px 52px #0006;
+}
+body[data-platform="android"] #history .empty-history::before,
+body[data-platform="android"] #history .empty-history::after{
+  content:"";position:absolute;border:1px solid #b968ff68;left:50%;top:43%;
+  width:134px;height:50px;transform:translate(-50%,-50%) rotate(-32deg);
+  border-radius:50%;box-shadow:0 0 18px #b85cfc6a;pointer-events:none;
+}
+body[data-platform="android"] #history .empty-history::after{
+  width:150px;height:44px;transform:translate(-50%,-50%) rotate(32deg);
+  border-color:#607cfe60;box-shadow:0 0 14px #6069ff41;
+}
+body[data-platform="android"] #history .empty-history>span{
+  display:grid;place-items:center;width:84px;height:84px;margin:0 0 35px;
+  font-size:40px;color:#eac4ff;text-shadow:0 0 17px #b14fff;
+  background:radial-gradient(circle at 37% 30%,#bb80ff9b,#32126fd6 75%);
+  border:1px solid #dc9cff75;border-radius:50%;box-shadow:0 0 30px #8f3eff8a;
+}
+body[data-platform="android"] #history .empty-history strong{
+  position:relative;font-size:15px;font-weight:620;color:#f9edff;
+}
+body[data-platform="android"] #history .empty-history p{position:relative;font-size:11px;color:#aaa0cd}
+body[data-platform="android"] #history .history-item{
+  display:flex;align-items:center;gap:13px;padding:17px;
+  border:1px solid #916de654;border-radius:20px;
+  background:linear-gradient(125deg,#1b1543c9,#0a0c29eb);
+  box-shadow:inset 0 1px #ffffff17,0 11px 26px #0004;
+}
+body[data-platform="android"] #history .history-item>span{
+  display:grid;place-items:center;flex:0 0 48px;height:48px;border-radius:16px;
+  background:#6828c440;color:#e3bcff;border:1px solid #a774ff4a;font-size:24px;
+}
+body[data-platform="android"] #history .history-item strong{
+  display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;color:#f2eaff;font-size:12px;font-weight:570;
+}
+body[data-platform="android"] #history .history-item small{color:#a79fca;font-size:10px}
+body[data-platform="android"] #history .stellar-history-go{
+  display:flex;justify-content:center;align-items:center;gap:12px;
+  width:100%;padding:15px;margin:18px 0 0;border-radius:15px;
+  background:#9340ef29;border:1px solid #be75ff65;
+  color:#efdaff;font-size:12px;font-weight:620;box-shadow:inset 0 1px #ffffff13;
+}
+body[data-platform="android"] #history:has(.history-item) .stellar-history-go{display:none}
+body[data-platform="android"] main>footer{display:none}
+/* Maintain the reference bottom bar, but make its active icon feel alive. */
+body[data-platform="android"] main>nav{
+  bottom:max(18px,calc(4.5dvh + env(safe-area-inset-bottom,0px)))!important;
+  background:radial-gradient(ellipse 41% 76% at 50% 0%,#6326ba4c,transparent 95%),
+    linear-gradient(120deg,#080921f5,#0a062be8,#08091ff5)!important;
+  border-color:#9949ffab!important;
+  box-shadow:0 0 24px #8a29ff48,inset 0 0 25px #8236f74d,0 12px 40px #000a!important;
+}
+body[data-platform="android"] main>nav .nav.active>span{
+  animation:stellar-active-glow 2.9s ease-in-out infinite alternate;
+}
+body[data-platform="android"] main>nav .nav:active{background:#713bc72e!important}
+body[data-platform="android"] #connection .cosmic-scan-hit{touch-action:manipulation}
+body[data-platform="android"] #connection .cosmic-photo{-webkit-user-select:none;user-select:none}
+@keyframes stellar-twinkle{0%,20%{opacity:.12}100%{opacity:.86}}
+@keyframes stellar-bob{from{transform:translateY(-5px) rotate(-3deg)}to{transform:translateY(8px) rotate(5deg)}}
+@keyframes stellar-sweep{from{transform:translateX(-110%)}to{transform:translateX(130%)}}
+@keyframes stellar-active-glow{from{filter:brightness(.94)}to{filter:brightness(1.22) drop-shadow(0 0 6px #c463ff)}}
+@keyframes stellar-led{0%,100%{opacity:.75}50%{opacity:1}}
+@media (max-width:380px){
+ body[data-platform="android"] #clipboard.page,body[data-platform="android"] #history.page{padding-left:14px!important;padding-right:14px!important}
+ body[data-platform="android"] #clipboard .hero{min-height:217px}
+ body[data-platform="android"] .stellar-orbit{right:-21px;top:52px;width:115px;height:115px;opacity:.65}
+ body[data-platform="android"] #clipboard .connection-strip{gap:9px;padding:14px 10px}
+ body[data-platform="android"] #clipboard .connection-symbol{width:37px;height:37px;flex-basis:37px}
+ body[data-platform="android"] #clipboard .connection-strip .text-button{padding:8px}
+}
+@media (prefers-reduced-motion:reduce){
+ body[data-platform="android"] .stellar-sky i,
+ body[data-platform="android"] .stellar-orbit,
+ body[data-platform="android"] #clipboard .transfer-stage::after,
+ body[data-platform="android"] main>nav .nav.active>span,
+ body[data-platform="android"][data-connected="true"] .stellar-status .stellar-led {
+   animation:none!important;
+ }
+}
