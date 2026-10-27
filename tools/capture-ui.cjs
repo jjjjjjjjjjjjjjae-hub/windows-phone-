@@ -123,6 +123,7 @@ window.Peer = class {
     await mobile.locator('#sendButton').click();
     await laptop.waitForFunction(() => document.querySelector('#receivedContent img')?.naturalWidth === 80);
     await laptop.locator('#copyAgain').click();
+    await laptop.waitForFunction(() => document.getElementById('receiveBadge').textContent === 'КӨШІРІЛДІ');
     assert(await laptop.evaluate(async () => (await navigator.clipboard.read()).some(item => item.types.includes('image/png'))));
     await mobile.locator('.nav[data-tab="history"]').click();
     assert.equal(await mobile.locator('.history-item').count(), 2);
