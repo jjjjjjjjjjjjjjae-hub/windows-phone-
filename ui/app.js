@@ -13,6 +13,57 @@
   const effects = window.BailanysEffects;
   const navigation = document.querySelector('nav');
   const sidebar = document.querySelector('.sidebar');
+  let pairingLink = '';
+  let qrAutoStarted = false;
+  function renderPairQr(code) {
+    pairingLink = '';
+    const root = $('pairQr');
+    root.replaceChildren();
+    $('copyPairLink').disabled = true;
+    if (!/^WP-[A-Z2-9]{16}$/.test(code)) {
+      $('qrStatus').textContent = 'QR-код жасалмады. Бетті қайта жүкте.';
+      return;
+    }
+    const url = new URL(location.href);
+    url.searchParams.delete('platform');
+    url.searchParams.delete('pair');
+    url.searchParams.set('pair', code);
+    pairingLink = url.href;
+    $('copyPairLink').disabled = false;
+    if (typeof window.QRCode !== 'function') {
+      $('qrStatus').textContent = 'QR кітапханасы жүктелмеді. Кодты қолмен енгіз.';
+      return;
+    }
+    try {
+      new window.QRCode(root, {
+        text: pairingLink, width: 232, height: 232,
+        colorDark: '#22162d', colorLight: '#ffffff',
+        correctLevel: window.QRCode.CorrectLevel.M
+      });
+      $('qrStatus').textContent = 'QR дайын. Телефон камерасымен сканерле.';
+    } catch (error) {
+      $('qrStatus').textContent = 'QR құрастыру қатесі. Код арқылы қосыл.';
+    }
+  }
+  async function autoPairFromQr() {
+    if (!browser || platform !== 'android' || qrAutoStarted) return;
+    const url = new URL(location.href);
+    const code = url.searchParams.get('pair');
+    if (!code) return;
+    url.searchParams.delete('pair');
+    window.history.replaceState(null, '', url);
+    if (!/^WP-[A-Z2-9]{16}$/.test(code)) {
+      tab('connection');
+      feedback('QR сілтемесі жарамсыз. Ноутбуктағы кодты қолмен енгіз.', true, 'pairFeedback');
+      return;
+    }
+    qrAutoStarted = true;
+    $('codeInput').value = code;
+    tab('connection');
+    feedback('QR сканерленді. Ноутбуктың растауын күтуде…', false, 'pairFeedback');
+    $('pairButton').click();
+  }
+
 
   function tab(id) {
     document.querySelectorAll('.page').forEach(page => { page.hidden = page.id !== id; });
@@ -339,7 +390,7 @@
     const dialog = $('onlineApproval');
     window.OnlineLink.init(platform, {
       onStatus: value => state({ connected: value }),
-      onCode: code => { $('pairCode').textContent = code; },
+      onCode: code => { $('pairCode').textContent = code; renderPairQr(code); },
       onReceive: received,
       onNotice: (message, isError) => feedback(message, isError, 'pairFeedback'),
       onProgress: percent => feedback('Жіберілуде: ' + percent + '%'),
@@ -353,9 +404,15 @@
       })
     });
     if (platform === 'windows') tab('connection');
+    $('copyPairLink').onclick = async () => {
+      if (!pairingLink) return;
+      try { await navigator.clipboard.writeText(pairingLink); feedback('Қосылу сілтемесі көшірілді.', false, 'pairFeedback'); }
+      catch { feedback('Сілтемені көшіруге рұқсат жоқ.', true, 'pairFeedback'); }
+    };
   }
   renderPlatform(platform);
   setMode('text');
   if (!browser || platform === 'android') tab('clipboard');
+  if (browser) autoPairFromQr();
   if (!browser) call('ready').then(result => { if (result) state(result); }).catch(error => feedback(error.message, true));
 })();
