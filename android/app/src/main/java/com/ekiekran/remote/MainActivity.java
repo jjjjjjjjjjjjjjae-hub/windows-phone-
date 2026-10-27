@@ -35,6 +35,8 @@ public final class MainActivity extends Activity {
 
     private WebView webView;
     private boolean capturePending;
+    private boolean rootCheckPending;
+    private boolean startAfterRoot;
     private PermissionRequest cameraRequest;
     private ValueCallback<Uri[]> fileCallback;
 
@@ -106,26 +108,60 @@ public final class MainActivity extends Activity {
                 case "accessibility":
                     startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
                     break;
+                case "request-root":
+                    checkRoot(false);
+                    break;
                 case "start":
                     if (capturePending || ScreenCaptureService.isRunning()) return;
-                    if (RemoteAccessibilityService.current() == null) {
-                        notifyError("Алдымен Android баптауынан «Екі экран» басқару рұқсатын қос."); return;
-                    }
                     capturePending = true;
-                    MediaProjectionManager manager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-                    startActivityForResult(manager.createScreenCaptureIntent(), CAPTURE_REQUEST);
+                    checkRoot(true);
                     break;
                 case "stop":
                     capturePending = false;
+                    startAfterRoot = false;
+                    RootControl.stopSession();
                     stopService(new Intent(this, ScreenCaptureService.class));
                     break;
+                case "frame-ready":
+                    ScreenCaptureService.allowNextFrame();
+                    break;
                 case "gesture":
-                    if (ScreenCaptureService.isRunning()) RemoteAccessibilityService.perform(input);
+                    if (ScreenCaptureService.isRunning()) {
+                        if (RootControl.isGranted()) RootControl.perform(this, input, () -> {
+                            rootStatus("denied");
+                            if (RemoteAccessibilityService.current() != null) RemoteAccessibilityService.perform(input);
+                            else notifyError("Root рұқсаты тоқтады. Magisk → Superuser бөлімінен қайта бер.");
+                        });
+                        else RemoteAccessibilityService.perform(input);
+                    }
                     break;
                 default: break;
             }
         } catch (JSONException ignored) { }
     }
+    private void checkRoot(boolean forStart) {
+        if (forStart) startAfterRoot = true;
+        if (rootCheckPending) return;
+        rootCheckPending = true;
+        rootStatus("checking");
+        RootControl.request(allowed -> {
+            rootCheckPending = false;
+            rootStatus(allowed ? "granted" : "denied");
+            boolean launch = startAfterRoot && capturePending;
+            startAfterRoot = false;
+            if (!launch) return;
+            if (allowed || RemoteAccessibilityService.current() != null) {
+                try {
+                    MediaProjectionManager manager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
+                    startActivityForResult(manager.createScreenCaptureIntent(), CAPTURE_REQUEST);
+                } catch (Exception e) { capturePending = false; notifyError("Экран бөлісу диалогы ашылмады."); }
+            } else {
+                capturePending = false;
+                notifyError("Root берілмеді. Magisk → Superuser бөлімінен «Екі экранға» рұқсат бер немесе Android басқару рұқсатын қос.");
+            }
+        });
+    }
+    private void rootStatus(String value) { js("window.PhoneRemote?.nativeRootStatus(" + JSONObject.quote(value) + ")"); }
     private void grantCamera() {
         if (cameraRequest != null) {
             if (trustedPage(webView.getUrl())) cameraRequest.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
@@ -176,7 +212,8 @@ public final class MainActivity extends Activity {
         else super.onBackPressed();
     }
     @Override protected void onDestroy() {
-        if (isFinishing()) stopService(new Intent(this, ScreenCaptureService.class));
+        RootControl.stopSession();
+        stopService(new Intent(this, ScreenCaptureService.class));
         if (current.get() == this) current.clear();
         if (webView != null) { webView.destroy(); webView = null; }
         super.onDestroy();

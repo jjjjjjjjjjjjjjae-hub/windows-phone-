@@ -6,7 +6,7 @@
   const WINDOW = 16;
   const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let peer, channel, role, hooks = {}, pendingConnect, pendingSend, incoming = null, authenticated = false;
-  let remoteActive = false, remotePending = false, incomingFrame = null, frameOutstanding = false, frameSentAt = 0;
+  let remoteActive = false, remotePending = false, incomingFrame = null, frameOutstanding = false, frameSentAt = 0, frameOutstandingId = null;
   let peerReadyResolve, peerReadyReject;
   let peerReady = new Promise((resolve, reject) => { peerReadyResolve = resolve; peerReadyReject = reject; });
   const isOpen = () => Boolean(channel?.open && authenticated);
@@ -36,7 +36,7 @@
       authenticated = false;
       incoming = null;
       if (remoteActive) hooks.onRemoteStop?.();
-      remoteActive = false; remotePending = false; incomingFrame = null; frameOutstanding = false;
+      remoteActive = false; remotePending = false; incomingFrame = null; frameOutstanding = false; frameOutstandingId = null;
       rejectSend('Жіберілім үзілді. Қайта қосыл.');
       if (pendingConnect) { pendingConnect.reject(new Error('Құрылғы қосылмады.')); pendingConnect = null; }
       status(false);
@@ -107,7 +107,7 @@
       remotePending = false; remoteActive = true; hooks.onRemoteStart?.(); return;
     }
     if (data.t === 'remote-stop') {
-      remoteActive = false; remotePending = false; incomingFrame = null; frameOutstanding = false;
+      remoteActive = false; remotePending = false; incomingFrame = null; frameOutstanding = false; frameOutstandingId = null;
       hooks.onRemoteStop?.(); return;
     }
     if (data.t === 'remote-frame-start' && role === 'windows' && remoteActive) {
@@ -129,11 +129,17 @@
       if (frame.received !== frame.length) return;
       const image = frame.parts.join('');
       if (!/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(image)) return;
-      hooks.onRemoteFrame?.({ image, width: frame.width, height: frame.height });
-      c.send({ t: 'remote-frame-ack', id: frame.id });
+      let rendered;
+      try { rendered = hooks.onRemoteFrame?.({ image, width: frame.width, height: frame.height }); }
+      catch { rendered = null; }
+      Promise.resolve(rendered).catch(() => {}).then(() => {
+        if (c === channel && isOpen() && remoteActive) c.send({ t: 'remote-frame-ack', id: frame.id });
+      });
       return;
     }
-    if (data.t === 'remote-frame-ack' && role === 'android') { frameOutstanding = false; return; }
+    if (data.t === 'remote-frame-ack' && role === 'android' && data.id === frameOutstandingId) {
+      frameOutstanding = false; frameOutstandingId = null; hooks.onRemoteFrameAck?.(); return;
+    }
     if (data.t === 'remote-action' && role === 'android' && remoteActive) {
       if (!['tap', 'swipe', 'back', 'home', 'recents'].includes(data.kind)) return;
       if (['tap', 'swipe'].includes(data.kind) && (![data.x, data.y, data.x2 ?? 0, data.y2 ?? 0].every(v => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 1))) return;
@@ -265,7 +271,7 @@
     const c = channel;
     channel = null; incoming = null; authenticated = false;
     if (remoteActive) hooks.onRemoteStop?.();
-    remoteActive = false; remotePending = false; incomingFrame = null; frameOutstanding = false;
+    remoteActive = false; remotePending = false; incomingFrame = null; frameOutstanding = false; frameOutstandingId = null;
     c?.close(); status(false);
   }
   function requestRemote() {
@@ -282,20 +288,20 @@
   function stopRemote() {
     if (isOpen()) channel.send({ t: 'remote-stop' });
     const wasActive = remoteActive;
-    remoteActive = false; remotePending = false; incomingFrame = null; frameOutstanding = false;
+    remoteActive = false; remotePending = false; incomingFrame = null; frameOutstanding = false; frameOutstandingId = null;
     if (wasActive) hooks.onRemoteStop?.();
   }
   function sendRemoteFrame(image, width, height) {
     if (role !== 'android' || !isOpen() || !remoteActive || typeof image !== 'string' ||
         !/^data:image\/jpeg;base64,/.test(image) || image.length > 500000) return false;
     if (frameOutstanding && Date.now() - frameSentAt < 4000) return false;
-    const id = crypto.randomUUID(); frameOutstanding = true; frameSentAt = Date.now();
+    const id = crypto.randomUUID(); frameOutstanding = true; frameOutstandingId = id; frameSentAt = Date.now();
     try {
       channel.send({ t: 'remote-frame-start', id, length: image.length, width, height });
       for (let i = 0; i < image.length; i += 12000) channel.send({ t: 'remote-frame-chunk', id, payload: image.slice(i, i + 12000) });
       channel.send({ t: 'remote-frame-end', id });
       return true;
-    } catch { frameOutstanding = false; return false; }
+    } catch { frameOutstanding = false; frameOutstandingId = null; return false; }
   }
   function sendRemoteAction(action) {
     if (role !== 'windows' || !isOpen() || !remoteActive) return false;

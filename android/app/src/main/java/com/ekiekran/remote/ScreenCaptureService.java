@@ -33,16 +33,22 @@ public final class ScreenCaptureService extends Service {
     static final String RESULT_DATA = "resultData";
     private static final String CHANNEL = "screen-share";
     private static volatile boolean running;
+    private static volatile ScreenCaptureService active;
 
     private HandlerThread thread;
     private Handler handler;
     private MediaProjection projection;
     private VirtualDisplay display;
     private ImageReader reader;
-    private int width, height, density;
+    private int width, height, captureWidth, captureHeight, density;
     private long lastFrame;
+    private volatile boolean frameReady = true;
 
     static boolean isRunning() { return running; }
+    static void allowNextFrame() {
+        ScreenCaptureService service = active;
+        if (service != null && running) service.frameReady = true;
+    }
     @Override public IBinder onBind(Intent intent) { return null; }
 
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
@@ -76,10 +82,11 @@ public final class ScreenCaptureService extends Service {
             }, handler);
             Point size = screenSize(); width = size.x; height = size.y;
             density = getResources().getDisplayMetrics().densityDpi;
-            reader = newReader(width, height);
-            display = projection.createVirtualDisplay("EkiEkran", width, height, density,
+            resizeCapture();
+            reader = newReader(captureWidth, captureHeight);
+            display = projection.createVirtualDisplay("EkiEkran", captureWidth, captureHeight, density,
                 DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, reader.getSurface(), null, handler);
-            running = true;
+            active = this; running = true;
             MainActivity.started();
         } catch (Exception e) {
             MainActivity.failed("Экранды бөлісу іске қосылмады: " + e.getClass().getSimpleName());
@@ -92,6 +99,10 @@ public final class ScreenCaptureService extends Service {
         Point size = new Point();
         ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getRealSize(size);
         return size;
+    }
+    private void resizeCapture() {
+        captureWidth = Math.min(width, 480);
+        captureHeight = Math.max(1, Math.round((float) height * captureWidth / width));
     }
     private ImageReader newReader(int w, int h) {
         ImageReader next = ImageReader.newInstance(w, h, PixelFormat.RGBA_8888, 2);
@@ -106,40 +117,41 @@ public final class ScreenCaptureService extends Service {
             Point size = screenSize();
             if (size.x != width || size.y != height) {
                 width = size.x; height = size.y;
-                ImageReader next = newReader(width, height);
-                display.resize(width, height, density);
+                resizeCapture();
+                ImageReader next = newReader(captureWidth, captureHeight);
+                display.resize(captureWidth, captureHeight, density);
                 display.setSurface(next.getSurface());
                 reader = next;
+                frameReady = true;
                 source.close();
                 return;
             }
             long now = android.os.SystemClock.elapsedRealtime();
-            if (now - lastFrame < 250) return;
-            lastFrame = now;
+            if (now - lastFrame < 220 || (!frameReady && now - lastFrame < 4200)) return;
+            frameReady = false; lastFrame = now;
             Image.Plane plane = image.getPlanes()[0];
             int rowPixels = plane.getRowStride() / plane.getPixelStride();
             ByteBuffer bytes = plane.getBuffer();
-            Bitmap padded = Bitmap.createBitmap(rowPixels, height, Bitmap.Config.ARGB_8888);
+            Bitmap padded = Bitmap.createBitmap(rowPixels, captureHeight, Bitmap.Config.ARGB_8888);
             padded.copyPixelsFromBuffer(bytes);
-            Bitmap cropped = Bitmap.createBitmap(padded, 0, 0, width, height);
+            Bitmap cropped = Bitmap.createBitmap(padded, 0, 0, captureWidth, captureHeight);
             if (cropped != padded) padded.recycle();
-            int targetWidth = Math.min(width, 540);
-            int targetHeight = Math.max(1, Math.round((float) height * targetWidth / width));
-            Bitmap scaled = Bitmap.createScaledBitmap(cropped, targetWidth, targetHeight, true);
-            if (scaled != cropped) cropped.recycle();
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            scaled.compress(Bitmap.CompressFormat.JPEG, 55, out);
-            scaled.recycle();
-            if (out.size() < 350000) MainActivity.frame(Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP), width, height);
+            cropped.compress(Bitmap.CompressFormat.JPEG, 45, out);
+            cropped.recycle();
+            if (out.size() < 250000) MainActivity.frame(Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP), width, height);
+            else frameReady = true;
         } catch (Exception ignored) {
             // Frames can race with screen rotation or the user stopping projection.
+            frameReady = true;
         } finally {
             if (image != null) image.close();
         }
     }
 
     @Override public void onDestroy() {
-        running = false;
+        running = false; active = null;
+        RootControl.stopSession();
         if (reader != null) { reader.close(); reader = null; }
         if (display != null) { display.release(); display = null; }
         if (projection != null) {
