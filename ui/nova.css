@@ -83,3 +83,8 @@ body.cosmic-active #cosmicDevices .cosmic-nav-hits{display:none!important}
 @media(max-height:710px){body.cosmic-active #cosmicDevices .nova-content{min-height:440px}body.cosmic-active #cosmicDevices .nova-emblem{height:190px}body.cosmic-active #cosmicDevices .nova-layout{padding-top:16px}}
 @media(max-width:350px){body.cosmic-active #cosmicDevices .nova-layout{padding-left:14px;padding-right:14px}body.cosmic-active #cosmicDevices .nova-headline p{font-size:11px}body.cosmic-active #cosmicDevices .nova-app-name strong{font-size:12px}body.cosmic-active #cosmicDevices .nova-app-name small{font-size:6px}body.cosmic-active #cosmicDevices .nova-top-state{font-size:8px}}
 @media(prefers-reduced-motion:reduce){body.cosmic-active #cosmicDevices .nova-emblem-halo,body.cosmic-active #cosmicDevices .nova-nebula,body.cosmic-active #cosmicDevices .nova-light-waves{animation:none!important}}
+
+/* State-controlled actions must stay hidden even when styled as flex. */
+body.cosmic-active #cosmicDevices .nova-main-action[hidden],
+body.cosmic-active #cosmicDevices .nova-code-action[hidden],
+body.cosmic-active #cosmicDevices .cosmic-connected-status[hidden]{display:none!important}
