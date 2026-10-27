@@ -245,3 +245,133 @@ body.cosmic-active #cosmicDevices .cosmic-starfield i{display:block;position:abs
 @keyframes cosmic-light-breath{from{opacity:.07;filter:drop-shadow(0 0 1px #b85bff)}to{opacity:.23;filter:drop-shadow(0 0 6px #de87ff)}}
 @keyframes cosmic-aura-breath{from{opacity:.12}to{opacity:.42}}
 @keyframes cosmic-star-twinkle{0%,16%{opacity:.07}70%,100%{opacity:.95}}
+
+
+/* v19: The reference bottom dock stays visible across ALL Android pages.
+   The desktop/Windows UI is not changed. */
+body[data-platform="android"] main > nav,
+body[data-platform="android"].cosmic-active main > nav {
+  display:flex!important;
+  position:fixed!important;
+  z-index:80!important;
+  left:50%!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:max(20px, calc(5.9dvh + env(safe-area-inset-bottom, 0px)))!important;
+  width:calc(100% - 32px)!important;
+  max-width:620px!important;
+  height:clamp(72px, 7.6dvh, 124px)!important;
+  margin:0!important;
+  padding:6px 7px 4px!important;
+  transform:translateX(-50%);
+  align-items:stretch;
+  justify-content:space-around;
+  gap:0!important;
+  border:1px solid rgba(108,44,211,.66)!important;
+  border-radius:clamp(24px,5vw,42px)!important;
+  background:
+    radial-gradient(ellipse 32% 68% at 50% 0%,rgba(105,16,211,.33),transparent 100%),
+    linear-gradient(130deg,rgba(3,5,23,.97),rgba(6,6,32,.98) 50%,rgba(1,4,23,.97))!important;
+  box-shadow:0 0 21px rgba(60,6,151,.18),inset 0 0 22px rgba(43,15,136,.17),0 9px 36px #0008!important;
+  backdrop-filter:blur(19px);
+  -webkit-backdrop-filter:blur(19px);
+  overflow:hidden;
+}
+body[data-platform="android"] main > nav::before {
+  content:"";
+  position:absolute;
+  height:2px;
+  top:0;
+  left:22%;
+  right:22%;
+  background:linear-gradient(90deg,transparent,#9240ff65 20%,#ee70ff 50%,#9240ff65 80%,transparent);
+  box-shadow:0 0 13px 2px #ad27ff8a;
+  pointer-events:none;
+}
+body[data-platform="android"] main > nav .nav {
+  position:relative!important;
+  z-index:1;
+  display:flex!important;
+  flex:1 1 0!important;
+  max-width:none!important;
+  min-width:0;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  padding:5px 1px 9px!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:20px!important;
+  background:transparent!important;
+  color:#a8a4ec!important;
+  font-family:inherit;
+  font-weight:400;
+  font-size:clamp(10px,2.9vw,15px)!important;
+  line-height:1.16;
+  text-align:center;
+  white-space:nowrap;
+  text-shadow:0 0 7px #5f39e259;
+}
+body[data-platform="android"] main > nav .nav > span {
+  position:relative;
+  width:auto!important;
+  height:auto;
+  display:block;
+  color:#9780f6!important;
+  font-size:clamp(26px,6vw,37px)!important;
+  font-weight:400;
+  line-height:1.13!important;
+  transition:color .22s ease,text-shadow .22s ease,transform .22s ease;
+}
+body[data-platform="android"] main > nav .nav.active {
+  color:#f8edff!important;
+  font-weight:550!important;
+  text-shadow:0 0 9px #cd63ff9c;
+}
+body[data-platform="android"] main > nav .nav.active > span {
+  color:#f5b1ff!important;
+  text-shadow:0 0 7px #e756ff,0 0 21px #ab15ff,0 0 34px #a626ff;
+}
+body[data-platform="android"] main > nav .nav.active::before {
+  content:"";
+  position:absolute;
+  z-index:-1;
+  left:4%;
+  right:4%;
+  top:-28%;
+  bottom:0;
+  border-radius:50%;
+  background:radial-gradient(ellipse at 50% 6%,rgba(174,25,255,.55) 0%,rgba(85,15,184,.22) 37%,transparent 74%);
+  filter:blur(8px);
+  pointer-events:none;
+}
+body[data-platform="android"] main > nav .nav.active::after {
+  content:"";
+  position:absolute;
+  width:26%;
+  height:4px;
+  border-radius:20px;
+  left:37%;
+  bottom:0;
+  background:#ee85ff;
+  box-shadow:0 0 7px 2px #f061ff,0 0 17px 5px #a928ffb5;
+  pointer-events:none;
+}
+body[data-platform="android"] main > nav .nav:focus-visible {
+  outline:2px solid #e3acff!important;
+  outline-offset:-4px;
+}
+/* Hide the old baked-in photo dock; a single real nav now sits over every page. */
+body.cosmic-active #cosmicDevices .cosmic-nav-hits{display:none!important}
+body.cosmic-active #cosmicDevices .cosmic-photo {
+  -webkit-mask-image:linear-gradient(to bottom,black 0%,black 77%,transparent 87%)!important;
+  mask-image:linear-gradient(to bottom,black 0%,black 77%,transparent 87%)!important;
+}
+body[data-platform="android"] #clipboard.page,
+body[data-platform="android"] #history.page {
+  padding-bottom:calc(160px + env(safe-area-inset-bottom,0px))!important;
+}
+@media (prefers-reduced-motion: reduce) {
+  body[data-platform="android"] main > nav .nav > span{transition:none!important}
+}
