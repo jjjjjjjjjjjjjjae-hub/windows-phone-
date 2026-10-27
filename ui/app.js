@@ -15,11 +15,11 @@
   const sidebar = document.querySelector('.sidebar');
   let pairingLink = '';
   let qrAutoStarted = false;
-  let connectedPhone = { name: 'Телефон', os: 'Телефон' };
+  let connectedPhone = { name: platform === 'android' ? 'Ноутбук' : 'Телефон', os: platform === 'android' ? 'Ноутбук' : 'Телефон' };
   function drawConnectedDevices() {
     const panel = $('connectedDevices');
     if (!panel) return;
-    panel.hidden = platform !== 'windows';
+    panel.hidden = false;
     const list = $('connectedDevicesList');
     const count = $('connectedDevicesCount');
     list.replaceChildren();
@@ -35,7 +35,7 @@
       const heading = document.createElement('strong');
       heading.textContent = 'Әзірге құрылғы қосылмаған';
       const description = document.createElement('p');
-      description.textContent = 'Телефонмен QR-кодты сканерлеп, ноутбукта қосылуды раста.';
+      description.textContent = platform === 'android' ? 'Ноутбуктағы QR-кодты сканерлеп, қосылуды раста.' : 'Телефонмен QR-кодты сканерлеп, ноутбукта қосылуды раста.';
       body.append(heading, description);
       empty.append(symbol, body);
       list.append(empty);
@@ -45,7 +45,7 @@
     row.className = 'connected-device-row';
     const icon = document.createElement('span');
     icon.className = 'connected-device-phone-icon';
-    icon.textContent = '▯';
+    icon.textContent = platform === 'android' ? '▱' : '▯';
     icon.setAttribute('aria-hidden', 'true');
     const info = document.createElement('div');
     info.className = 'connected-device-info';
@@ -294,7 +294,7 @@
 
   function state(data) {
     connected = Boolean(data.connected);
-    if (!connected) connectedPhone = { name: 'Телефон', os: 'Телефон' };
+    if (!connected) connectedPhone = { name: platform === 'android' ? 'Ноутбук' : 'Телефон', os: platform === 'android' ? 'Ноутбук' : 'Телефон' };
     drawConnectedDevices();
     document.body.dataset.connected = String(connected);
     if (!connected) effects?.reset();
