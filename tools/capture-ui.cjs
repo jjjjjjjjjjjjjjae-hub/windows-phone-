@@ -75,7 +75,7 @@ window.Peer = class {
     await laptop.waitForFunction(() => /^WP-[A-Z2-9]{16}$/.test(document.getElementById('pairCode').textContent));
     assert.equal(await laptop.locator('body').getAttribute('data-platform'), 'windows');
     assert.equal(await laptop.locator('.primary-nav').evaluate(el => getComputedStyle(el).position), 'static');
-    await laptop.screenshot({ path: path.join(output, 'windows.png'), fullPage: true });
+    await laptop.screenshot({ path: path.join(output, 'windows.png'), fullPage: true, animations: 'disabled' });
 
     const mobile = await context.newPage();
     mobile.on('pageerror', error => errors.push('phone: ' + error.message));
@@ -86,7 +86,7 @@ window.Peer = class {
     assert.equal(await mobile.locator('body').getAttribute('data-platform'), 'android');
     assert.equal(await mobile.locator('.primary-nav').evaluate(el => getComputedStyle(el).position), 'fixed');
     assert.equal(await mobile.locator('.nav').count(), 3);
-    await mobile.screenshot({ path: path.join(output, 'android.png'), fullPage: true });
+    await mobile.screenshot({ path: path.join(output, 'android.png'), fullPage: true, animations: 'disabled' });
 
     await mobile.locator('.nav[data-tab="clipboard"]').click();
     assert(await mobile.locator('.primary-nav').isVisible());
@@ -108,6 +108,7 @@ window.Peer = class {
     const text = 'Сәлем, екі экран! <script>not executable</script>';
     await mobile.locator('#textInput').fill(text);
     await mobile.locator('#sendButton').click();
+    await laptop.locator('.nav[data-tab="clipboard"]').click();
     await laptop.locator('#receivedContent').waitFor({ state: 'visible' });
     await laptop.waitForFunction(expected => document.getElementById('receivedContent').textContent === expected, text);
     assert.equal(await laptop.locator('#receivedContent script').count(), 0);
