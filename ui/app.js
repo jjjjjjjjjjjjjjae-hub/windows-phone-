@@ -11,6 +11,22 @@
   let connected = false, mode = 'text', image = null, last = null, sequence = 0, busy = false;
   const pending = new Map(), historyItems = [];
   const effects = window.BailanysEffects;
+  const sky = $('stellarSky');
+  if (sky) {
+    let seed = 5471;
+    const rand = () => { seed = (Math.imul(1664525, seed) + 1013904223) >>> 0; return seed / 4294967296; };
+    const frag = document.createDocumentFragment();
+    for (let i=0; i<48; i++) {
+      const star=document.createElement('i');
+      star.style.setProperty('--x',(4+rand()*92).toFixed(2)+'%');
+      star.style.setProperty('--y',(3+rand()*91).toFixed(2)+'%');
+      star.style.setProperty('--d',(0.8+rand()*2.1).toFixed(2)+'px');
+      star.style.setProperty('--t',(3+rand()*5).toFixed(2)+'s');
+      star.style.setProperty('--delay',(-rand()*8).toFixed(2)+'s');
+      frag.append(star);
+    }
+    sky.append(frag);
+  }
   const navigation = document.querySelector('nav');
   const sidebar = document.querySelector('.sidebar');
   let pairingLink = '';
@@ -343,6 +359,7 @@
     if (!connected) connectedPhone = { name: platform === 'android' ? 'Ноутбук' : 'Телефон', os: platform === 'android' ? 'Ноутбук' : 'Телефон' };
     drawConnectedDevices();
     document.body.dataset.connected = String(connected);
+    if ($('stellarLinkText')) $('stellarLinkText').textContent = connected ? 'ҚҰРЫЛҒЫ ҚОСЫЛДЫ' : 'ҚОСЫЛУДЫ КҮТУДЕ';
     if (!connected) effects?.reset();
     const device = data.deviceName || (platform === 'windows' ? 'Телефон' : 'Ноутбук');
     $('deviceName').textContent = connected ? device : 'Құрылғы қосылмаған';
@@ -606,6 +623,7 @@
 
   document.querySelectorAll('.nav').forEach(button => { button.onclick = () => tab(button.dataset.tab); });
   $('openConnection').onclick = () => tab('connection');
+  $('stellarHistoryGo').onclick = () => tab('clipboard');
   window.addEventListener('resize', arrangeNavigation);
   if (browser) {
     document.body.classList.add('browser-preview');
