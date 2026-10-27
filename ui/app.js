@@ -74,6 +74,7 @@
     $('connectionHeading').textContent = connected ? name + ' қосылды' : 'Құрылғы қосылмаған';
     $('connectionDescription').textContent = connected ? 'Мәлімет жіберуге дайын.' : 'Қосу үшін төмендегі қадамды орында.';
     $('connectionStatus').textContent = connected ? 'ҚОСЫЛДЫ' : 'ЖҰПТАСТЫРУ КҮТІЛУДЕ';
+    $('sceneStatus').textContent = connected ? 'ОНЛАЙН' : 'КҮТУДЕ';
     $('bannerHeading').textContent = connected ? name + ' байланыста' : 'Алдымен құрылғыны қос';
     $('bannerDescription').textContent = connected ? 'Шифрланған арна мәлімет жіберуге дайын.' : 'Жұптастырған соң тасымал осы жерде іске қосылады.';
     $('androidPair').hidden = connected || platform !== 'android';
@@ -355,6 +356,8 @@
   function received(data) {
     lastReceived = data;
     const root = $('receivedContent'); root.replaceChildren();
+    root.classList.add('has-content');
+    root.classList.toggle('has-image', data.type === 'image');
     if (data.type === 'image') { const img = document.createElement('img'); img.src = data.preview; img.alt = 'Қабылданған сурет'; root.append(img); }
     else root.textContent = data.text;
     $('receiveBadge').textContent = data.copied ? 'КӨШІРІЛДІ' : 'ҚАБЫЛДАНДЫ';
