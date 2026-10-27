@@ -7,9 +7,12 @@
   <meta name="description" content="Екі экран арасындағы жеңіл, ерекше интерфейс. Браузердегі дизайн сынағы.">
   <meta name="theme-color" content="#0b0d14">
   <title>Екі экран · Онлайн тасымал</title>
-  <link rel="stylesheet" href="style.css?v=live3">
+  <link rel="stylesheet" href="style.css?v=qr4">
   <script src="effects.js?v=2" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js" defer></script><script src="online.js?v=3" defer></script><script src="app.js?v=3" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script>
+  <script src="online.js?v=3" defer></script>
+  <script src="app.js?v=qr4" defer></script>
 </head>
 <body>
 <div class="ambient" aria-hidden="true"></div>
@@ -56,7 +59,22 @@
       </div>
       <div class="privacy"><span aria-hidden="true">◇</span><div><strong id="privacyTitle">Тек өз құрылғыларың арасында</strong><p id="privacyText">Деректер шифрланған WebRTC арнасымен жіберіледі. Жұптастыруға сыртқы сигнал сервері керек.</p></div><span class="privacy-stamp">ЖЕКЕ. ЖЕҢІЛ. ЖАҚЫН.</span></div>
     </section>
-    <section id="connection" class="page" hidden><div class="eyebrow">БІР БАЙЛАНЫСТАН БАСТАЛАДЫ</div><h1>Жақынырақ бол.</h1><p class="subtitle">Телефон мен ноутбук интернетке қосылсын. Бір Wi-Fi міндетті емес.</p><div id="demoPair" class="demo-pair" hidden><div class="pair-orb" aria-hidden="true">⌁</div><span class="demo-badge">ИНТЕРФЕЙС СЫНАҒЫ</span><h2>Екі экранды сезініп көр.</h2><p>Демо байланысты қос. Мәтін не сурет жіберіп, келесі көріністен нәтижесін қара.</p><button class="primary" id="demoConnect">Демо байланысты қосу <span>↗</span></button><p class="form-note">Бұл сынақ осы бет ішінде өтеді. Нақты құрылғыға қосылмайды.</p></div><div id="androidPair" hidden><label class="field">Ноутбуктағы жеке код<input id="codeInput" maxlength="19" placeholder="WP-XXXXXXXXXXXXXXXX" autocomplete="off" spellcheck="false"></label><button class="primary" id="pairButton">Ноутбукке онлайн қосылу</button><p class="form-note">Ноутбукте көрсетілген кодты енгіз де, қосылуды ноутбуктан раста.</p><input id="hostInput" hidden></div><div id="windowsPair" hidden><div class="pair-card"><span>НОУТБУКТЫҢ ЖЕКЕ КОДЫ</span><strong id="pairCode" class="online-code">ЖҮКТЕЛУДЕ...</strong><p>Телефонда сайтты ашып, осы кодты енгіз. Кодты бөгде адамдарға берме.</p></div><p class="form-note">Қосылу сұрауын өзің растаған соң телефон файл жібере алады.</p><input id="localAddresses" hidden><input id="fingerprint" hidden></div><button class="secondary disconnect" id="disconnectButton">Байланысты ажырату</button><p id="pairFeedback" class="feedback" aria-live="polite"></p></section>
+    <section id="connection" class="page" hidden><div class="eyebrow">БІР БАЙЛАНЫСТАН БАСТАЛАДЫ</div><h1>Жақынырақ бол.</h1><p class="subtitle">Телефон мен ноутбук интернетке қосылсын. Бір Wi-Fi міндетті емес.</p><div id="demoPair" class="demo-pair" hidden><div class="pair-orb" aria-hidden="true">⌁</div><span class="demo-badge">ИНТЕРФЕЙС СЫНАҒЫ</span><h2>Екі экранды сезініп көр.</h2><p>Демо байланысты қос. Мәтін не сурет жіберіп, келесі көріністен нәтижесін қара.</p><button class="primary" id="demoConnect">Демо байланысты қосу <span>↗</span></button><p class="form-note">Бұл сынақ осы бет ішінде өтеді. Нақты құрылғыға қосылмайды.</p></div><div id="androidPair" hidden><p class="phone-qr-tip"><span aria-hidden="true">▦</span> Ноутбуктағы QR-кодты телефон камерасымен сканерле — код автоматты енгізіледі.</p><label class="field">Ноутбуктағы жеке код<input id="codeInput" maxlength="19" placeholder="WP-XXXXXXXXXXXXXXXX" autocomplete="off" spellcheck="false"></label><button class="primary" id="pairButton">Ноутбукке онлайн қосылу</button><p class="form-note">Ноутбукте көрсетілген кодты енгіз де, қосылуды ноутбуктан раста.</p><input id="hostInput" hidden></div><div id="windowsPair" hidden>
+  <div class="pair-card qr-pair-card">
+    <div class="qr-topline"><span class="qr-icon" aria-hidden="true">▦</span><span>QR АРҚЫЛЫ ҚОСЫЛУ</span></div>
+    <h2>Телефон камерасымен сканерле</h2>
+    <p>QR-кодты сканерлегенде телефонда сайт ашылып, ноутбукке қосылу сұрауы автоматты жіберіледі.</p>
+    <div class="qr-shell"><div id="pairQr" class="pair-qr" role="img" aria-label="Телефонмен сканерлеуге арналған QR-код"><span class="qr-loading">QR-код дайындалуда…</span></div></div>
+    <p class="qr-helper" id="qrStatus" role="status" aria-live="polite">Жеке байланыс коды жасалуда…</p>
+    <div class="qr-divider"><span>НЕМЕСЕ КОДПЕН ҚОСЫЛ</span></div>
+    <span class="qr-code-label">НОУТБУКТЫҢ ЖЕКЕ КОДЫ</span>
+    <strong id="pairCode" class="online-code">ЖҮКТЕЛУДЕ...</strong>
+    <button type="button" class="secondary qr-copy-button" id="copyPairLink" disabled> <span aria-hidden="true">↗</span> Қосылу сілтемесін көшіру</button>
+    <p class="qr-safety"><span aria-hidden="true">◇</span> Қосылуды тек өзің раста. QR-код пен сілтемені бөгде адамға жіберме.</p>
+  </div>
+  <p class="form-note">Телефонмен QR сканерле, содан кейін ноутбукта «Рұқсат беру» батырмасын бас.</p>
+  <input id="localAddresses" hidden><input id="fingerprint" hidden>
+</div><button class="secondary disconnect" id="disconnectButton">Байланысты ажырату</button><p id="pairFeedback" class="feedback" aria-live="polite"></p></section>
     <section id="history" class="page" hidden><div class="eyebrow">КІШКЕНТАЙ СӘТТЕР</div><h1>Жіберу тарихы</h1><p class="subtitle">Соңғы 10 әрекет. Тек осы сессияда.</p><div id="historyList" class="history-list"><div class="empty-history"><span>◷</span><strong>Бәрі алғашқы сәттен басталады.</strong><p>Бір нәрсе жібер. Ізі осы жерде қалады.</p></div></div></section>
     <footer><span><i class="footer-dot"></i>Өз кеңістігіңде қал.</span><span class="footer-right">Android <b>↔</b> Windows</span></footer>
   </main>
