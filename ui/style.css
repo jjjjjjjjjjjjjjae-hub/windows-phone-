@@ -70,3 +70,8 @@ body[data-platform=windows] .preview-modes,body[data-platform=android] .preview-
 .camera-feedback{font-size:12px;color:#c8bcdf;line-height:1.7;margin:14px 3px}
 .camera-area .secondary{display:block;width:100%;margin-bottom:2px}
 .phone-qr-divider{margin:22px 0;max-width:560px}
+
+.camera-fallback{display:flex;gap:9px;flex-wrap:wrap;max-width:560px}
+.camera-photo-button{flex:1;min-width:150px;display:flex;gap:7px;justify-content:center;align-items:center}
+.camera-photo-button span{font-size:20px}
+.camera-help{max-width:560px;min-height:24px;color:#c7bbdc;font-size:11px;line-height:1.7;margin:12px 0 16px}
