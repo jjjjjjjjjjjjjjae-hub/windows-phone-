@@ -6,6 +6,9 @@ on:
   pull_request:
     paths: ['ui/**', 'index.html', 'open-preview.js', 'tools/capture-ui.cjs', 'package*.json', '.github/workflows/interface.yml']
   workflow_dispatch:
+concurrency:
+  group: interface-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -18,8 +21,11 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --ignore-scripts
-      - run: npx playwright install --with-deps chromium
+      # GitHub's Ubuntu image already includes stable Google Chrome.
+      - run: google-chrome --version
       - run: npm run screenshots
+        env:
+          PLAYWRIGHT_CHANNEL: chrome
       - uses: actions/upload-artifact@v4
         if: always()
         with:

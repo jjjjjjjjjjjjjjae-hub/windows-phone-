@@ -4,52 +4,64 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'">
-  <meta name="description" content="Байланыс: телефон мен ноутбук интерфейсін браузерде тексеру.">
-  <meta name="theme-color" content="#0866db">
-  <title>Байланыс — интерфейсті тексеру</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="app.js" defer></script>
+  <meta name="description" content="Байланыс: екі экран арасындағы жеңіл, ерекше интерфейс. Браузердегі дизайн сынағы.">
+  <meta name="theme-color" content="#0b0d14">
+  <title>Байланыс — екі экран, бір кеңістік</title>
+  <link rel="stylesheet" href="style.css?v=2">
+  <script src="effects.js?v=2" defer></script>
+  <script src="app.js?v=2" defer></script>
 </head>
 <body>
+<div class="ambient" aria-hidden="true"></div>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><span class="brand-mark">↔</span><span>Байланыс<small>ТЕЛЕФОН + WINDOWS</small></span></div>
-    <div class="device"><div class="device-icon">▯</div><strong id="deviceName">Құрылғы қосылмаған</strong><span class="status"><i id="statusDot"></i><span id="statusText">Қосылмаған</span></span></div>
+    <div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="5" y="5" width="13" height="17" rx="4"/><rect x="14" y="10" width="13" height="17" rx="4"/></svg></span><span>Байланыс<small>ЕКІ ЭКРАН. БІР КЕҢІСТІК.</small></span></div>
+    <div class="sidebar-label">СЕНІҢ КЕҢІСТІГІҢ</div>
     <nav aria-label="Бөлімдер">
-      <button class="nav active" data-tab="clipboard"><span>▣</span>Ортақ буфер</button>
-      <button class="nav" data-tab="connection"><span>⌁</span>Байланыс</button>
-      <button class="nav" data-tab="history"><span>◷</span>Жіберу тарихы</button>
+      <button class="nav active" data-tab="clipboard"><span aria-hidden="true">↗</span>Ортақ буфер</button>
+      <button class="nav" data-tab="connection"><span aria-hidden="true">⌁</span>Байланыс</button>
+      <button class="nav" data-tab="history"><span aria-hidden="true">◷</span>Жіберу тарихы</button>
     </nav>
-    <div class="local-note"><span class="small-dot"></span>Тікелей Wi-Fi байланысы<small>Өз телефоның. Өз ноутбугің.</small></div>
-    <span class="version">Байланыс · 0.1.0</span>
+    <div class="device"><div class="device-icon" aria-hidden="true"><svg viewBox="0 0 56 64"><rect x="14" y="5" width="28" height="51" rx="8"/><path d="M24 11h8M25 49h6"/></svg><span class="device-halo"></span></div><strong id="deviceName">Құрылғы қосылмаған</strong><span class="status"><i id="statusDot"></i><span id="statusText">Қосылмаған</span></span></div>
+    <div class="local-note">Өзіңнің жеке кеңістігің.<small>Керегің — келесі экранда.</small></div>
+    <span class="version"><span class="version-dot"></span>Байланыс <span>0.2 / PREVIEW</span></span>
   </aside>
   <main>
-    <header><div class="mobile-brand"><span class="brand-mark">↔</span>Байланыс</div><span class="platform" id="platformLabel">WINDOWS</span><span id="environment" class="environment" hidden>Интерфейс сынағы</span></header>
+    <header><div class="mobile-brand"><span class="brand-mark" aria-hidden="true">↔</span>Байланыс</div><span class="platform" id="platformLabel">WINDOWS</span><span id="environment" class="environment" hidden><i></i>Браузердегі демо</span></header>
     <div id="previewToolbar" class="preview-toolbar" hidden>
-      <div class="preview-top"><strong>Браузердегі сынақ <span class="demo-badge">ДЕМО</span></strong><div class="preview-modes" role="group" aria-label="Құрылғы көрінісі"><button id="previewAndroid" aria-pressed="false">Телефон</button><button id="previewWindows" aria-pressed="false">Ноутбук</button></div></div>
-      <p>Демо байланысты қосып, мәтін не сурет жібер. Содан кейін «Ноутбук» көрінісінен нәтижесін тексер. Бұл сынақ бір бет ішінде өтеді.</p>
+      <div class="preview-top"><strong><span class="demo-badge">ДЕМО</span>Алдымен сезініп көр.</strong><div class="preview-modes" role="group" aria-label="Құрылғы көрінісі"><button id="previewAndroid" aria-pressed="false">Телефон</button><button id="previewWindows" aria-pressed="false">Ноутбук</button></div></div>
+      <p>Екі көрініс, бір бет. Құрылғылар арасындағы тасымал кейін қосылады.</p>
     </div>
     <section id="clipboard" class="page">
-      <div class="eyebrow" id="pageEyebrow">ТЕЛЕФОННАН НОУТБУККЕ</div>
-      <h1>Ортақ буфер</h1>
-      <p class="subtitle" id="subtitle">Сурет, мәтін немесе код — бір батырмамен.</p>
-      <div class="connection-strip"><div class="connection-symbol">⌁</div><div><strong id="connectionHeading">Ноутбукке қосыл</strong><span id="connectionDescription">Екі құрылғы бір Wi-Fi желісінде болуы керек.</span></div><button class="text-button" id="openConnection">Қосылу <span>→</span></button></div>
-      <div id="senderPanel">
-        <div class="segmented" role="tablist" aria-label="Жіберілетін мазмұн"><button class="selected" role="tab" aria-selected="true" id="textTab">Мәтін / код</button><button role="tab" aria-selected="false" id="imageTab">Сурет</button></div>
-        <div id="textPanel"><label class="editor-label" for="textInput">Ноутбукке жіберетін мәтінің</label><div class="editor"><div class="editor-top"><span class="editor-dots">● ● ●</span><span>Мәтін / код</span><span id="charCount">0 таңба</span></div><textarea id="textInput" maxlength="200000" spellcheck="false" placeholder="Мәтінді немесе кодыңды осында енгіз..."></textarea></div></div>
-        <div id="imagePanel" hidden><div class="image-picker" id="imagePicker"><div class="image-glyph">▧</div><strong>Суретті таңда</strong><span>PNG немесе JPEG · 20 МБ дейін</span><button class="secondary" id="pickImage">Галереяны ашу</button><img id="imagePreview" alt="Жіберілетін сурет" hidden><span id="imageName"></span></div></div>
-        <button class="primary send-button" id="sendButton"><span>Ноутбук буферіне жіберу</span><span>↗</span></button>
-        <div class="hint"><span>▣</span><span id="transferHint">Жіберген соң ноутбукта <kbd>Ctrl</kbd> + <kbd>V</kbd> бас.</span></div>
+      <div class="hero"><div class="eyebrow" id="pageEyebrow"><span></span>ТЕЛЕФОН ↔ НОУТБУК</div><h1>Бір сәт.<br><span>Екінші экранда.</span></h1><p class="subtitle" id="subtitle">Ойың, суретің, кодың. Бәрі бір қимылмен.</p><div class="hero-spark" aria-hidden="true">✳</div></div>
+      <div class="connection-strip"><div class="connection-symbol" aria-hidden="true">⌁</div><div><strong id="connectionHeading">Ноутбукке қосыл</strong><span id="connectionDescription">Екі құрылғы бір Wi-Fi желісінде болуы керек.</span></div><button class="text-button" id="openConnection">Қосылу <span>↗</span></button></div>
+      <div class="workspace">
+        <div class="transfer-card">
+          <div id="senderPanel">
+            <div class="segmented" role="tablist" aria-label="Жіберілетін мазмұн"><button class="selected" role="tab" aria-selected="true" id="textTab"><span aria-hidden="true">Tt</span>Мәтін / код</button><button role="tab" aria-selected="false" id="imageTab"><span aria-hidden="true">▧</span>Сурет</button></div>
+            <div id="textPanel"><label class="editor-label" for="textInput">Келесі экранға не жібереміз?</label><div class="editor"><div class="editor-top"><span class="editor-dots">● ● ●</span><span>ЖЕКЕ ЖОБАЙЫҢ</span><span id="charCount">0 таңба</span></div><textarea id="textInput" maxlength="200000" spellcheck="false" placeholder="Ойыңды жаз.&#10;Немесе кодыңды осында қой..."></textarea></div></div>
+            <div id="imagePanel" hidden><div class="image-picker" id="imagePicker"><div class="image-empty"><div class="image-glyph" aria-hidden="true"><svg viewBox="0 0 70 70"><rect x="10" y="14" width="43" height="43" rx="9"/><path d="m14 48 12-13 10 9 7-7 9 10"/><circle cx="40" cy="27" r="4"/><path d="M58 5v17M50 13h17"/></svg></div><strong>Бір сурет. Мың бөлшек.</strong><span>Суретіңді таңда. Жібергенде қалай ұшатынын көр.</span></div><img id="imagePreview" alt="Жіберілетін сурет" hidden><span id="imageName"></span><div class="image-actions"><button class="secondary" id="pickImage">Суретті таңдау <span>＋</span></button><button class="text-button" id="useDemoImage" hidden>Сынақ суреті ↗</button></div><span class="file-limit">PNG / JPEG · 20 МБ дейін</span></div></div>
+            <button class="primary send-button" id="sendButton"><span>Ноутбук буферіне жіберу</span><span class="send-icon" aria-hidden="true">↗</span></button>
+            <div class="hint"><span aria-hidden="true">⌘</span><span id="transferHint">Жіберген соң ноутбукта Ctrl + V бас.</span></div>
+          </div>
+          <div id="receiverPanel" hidden><div class="receiver-head"><h2>Соңғы қабылданған</h2><span class="badge" id="receiveBadge">Күтуде</span></div><div class="received-content" id="receivedContent"><div class="empty-icon" aria-hidden="true">↙</div><strong>Келесі ойыңды күтіп тұр.</strong><p>Телефоннан жіберген мәтін, код немесе сурет осында пайда болады.</p></div><button class="primary demo-start" id="demoStart" hidden>Эффектіні сынап көру <span>↗</span></button><button class="secondary" id="copyAgain" disabled>Буферге қайта көшіру</button><label class="switch-row"><input type="checkbox" id="autoCopy" checked><span>Қабылданғанды буферге автоматты көшіру</span></label></div>
+          <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+        </div>
+        <aside class="transfer-stage" aria-label="Жіберу анимациясы">
+          <div class="stage-top"><span>АРАДАҒЫ СӘТ</span><span class="stage-number">01 — 02</span></div>
+          <div class="orbit-scene" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><span class="orbit-star star-one">✦</span><span class="orbit-star star-two">✧</span><span class="orbit-dot dot-one"></span><span class="orbit-dot dot-two"></span><div class="transfer-core" id="transferCore"><svg viewBox="0 0 64 64"><path d="M15 40 45 18M22 17h25v25M17 26v21h21"/></svg><span class="core-check">✓</span></div></div>
+          <div class="stage-caption"><strong id="transferCaption">Қашықтық — бір қимыл.</strong><p id="transferDetail">Кішкентай әрекет.<br>Әдемі ауысу.</p></div>
+          <div class="stage-route"><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="3"/><path d="M10 17h4"/></svg>Телефон</span><i>··· ↗ ···</i><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="12" rx="2"/><path d="M2 20h20M9 16v4m6-4v4"/></svg>Ноутбук</span></div>
+        </aside>
       </div>
-      <div id="receiverPanel" hidden><div class="receiver-head"><h2>Соңғы қабылданған</h2><span class="badge" id="receiveBadge">Күтуде</span></div><div class="received-content" id="receivedContent"><div class="empty-icon">▣</div><strong>Телефоннан жібер</strong><p>Мәтін, код немесе сурет осында көрінеді.<br>Содан кейін Ctrl + V арқылы қоя аласың.</p></div><button class="secondary" id="copyAgain" disabled>Буферге қайта көшіру</button><label class="switch-row"><input type="checkbox" id="autoCopy" checked><span>Қабылданғанды буферге автоматты көшіру</span></label></div>
-      <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
-      <div class="privacy"><span>◇</span><div><strong id="privacyTitle">Тек өз құрылғыларың арасында</strong><p id="privacyText">Жұптасуды ноутбукта растайсың. Мазмұн бұлтқа жүктелмейді.</p></div></div>
+      <div class="privacy"><span aria-hidden="true">◇</span><div><strong id="privacyTitle">Тек өз құрылғыларың арасында</strong><p id="privacyText">Мазмұн бұлтқа жүктелмейді.</p></div><span class="privacy-stamp">ЖЕКЕ. ЖЕҢІЛ. ЖАҚЫН.</span></div>
     </section>
-    <section id="connection" class="page" hidden><div class="eyebrow">ҚҰРЫЛҒЫЛАРДЫ ЖҰПТАСТЫРУ</div><h1>Байланыс</h1><p class="subtitle">Телефон мен ноутбук бір Wi-Fi желісінде болсын.</p><div id="demoPair" class="demo-pair" hidden><span class="demo-badge">ИНТЕРФЕЙС СЫНАҒЫ</span><h2>Демо байланыс</h2><p>Батырманы басып, жұптасқан құрылғылардың интерфейсін тексер. Бұл режим нақты телефонға немесе ноутбукке қосылмайды.</p><button class="primary" id="demoConnect">Демо байланысты қосу</button><p class="form-note">Мәтін мен сурет осы бет ішінде ғана көрсетіледі. Бетті жаңартсаң, сынақ деректері тазарады.</p></div><div id="androidPair"><label class="field">Ноутбук IP мекенжайы<input id="hostInput" inputmode="decimal" placeholder="192.168.1.5" autocomplete="off"></label><label class="field">Ноутбуктағы 6 таңбалы код<input id="codeInput" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="off"></label><button class="primary" id="pairButton">Ноутбукке қосылу</button><p class="form-note">Қосылғанда екі экрандағы қауіпсіздік таңбасын салыстыр.</p></div><div id="windowsPair" hidden><label class="field">Телефонға енгізетін IP<input id="localAddresses" readonly value="EXE ашылғанда көрсетіледі"></label><div class="pair-card"><span>ЖҰПТАСТЫРУ КОДЫ</span><strong id="pairCode">— — — — — —</strong><p>Осы кодты телефондағы қолданбаға енгіз.</p></div><label class="field">Қауіпсіздік таңбасы<input id="fingerprint" readonly value="EXE ашылғанда көрсетіледі"></label><p class="form-note">Алғаш қосылғанда Windows сұраса, жеке Wi-Fi желісіне рұқсат бер.</p></div><button class="secondary disconnect" id="disconnectButton">Байланысты ажырату</button><p id="pairFeedback" class="feedback" aria-live="polite"></p></section>
-    <section id="history" class="page" hidden><div class="eyebrow">ОСЫ СЕССИЯ</div><h1>Жіберу тарихы</h1><p class="subtitle">Соңғы 10 әрекет. Мазмұн дискіге сақталмайды.</p><div id="historyList" class="history-list"><p class="empty-history">Әзірге ештеңе жіберілген жоқ.</p></div></section>
-    <footer><span class="footer-dot"></span><span>Жеке байланыс</span><span class="footer-right">Android ↔ Windows</span></footer>
+    <section id="connection" class="page" hidden><div class="eyebrow">БІР БАЙЛАНЫСТАН БАСТАЛАДЫ</div><h1>Жақынырақ бол.</h1><p class="subtitle">Телефон мен ноутбук бір Wi-Fi желісінде болсын.</p><div id="demoPair" class="demo-pair" hidden><div class="pair-orb" aria-hidden="true">⌁</div><span class="demo-badge">ИНТЕРФЕЙС СЫНАҒЫ</span><h2>Екі экранды сезініп көр.</h2><p>Демо байланысты қос. Мәтін не сурет жіберіп, келесі көріністен нәтижесін қара.</p><button class="primary" id="demoConnect">Демо байланысты қосу <span>↗</span></button><p class="form-note">Бұл сынақ осы бет ішінде өтеді. Нақты құрылғыға қосылмайды.</p></div><div id="androidPair"><label class="field">Ноутбук IP мекенжайы<input id="hostInput" inputmode="decimal" placeholder="192.168.1.5" autocomplete="off"></label><label class="field">Ноутбуктағы 6 таңбалы код<input id="codeInput" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="off"></label><button class="primary" id="pairButton">Ноутбукке қосылу</button><p class="form-note">Қосылғанда екі экрандағы қауіпсіздік таңбасын салыстыр.</p></div><div id="windowsPair" hidden><label class="field">Телефонға енгізетін IP<input id="localAddresses" readonly value="EXE ашылғанда көрсетіледі"></label><div class="pair-card"><span>ЖҰПТАСТЫРУ КОДЫ</span><strong id="pairCode">— — — — — —</strong><p>Осы кодты телефондағы қолданбаға енгіз.</p></div><label class="field">Қауіпсіздік таңбасы<input id="fingerprint" readonly value="EXE ашылғанда көрсетіледі"></label><p class="form-note">Алғаш қосылғанда жеке Wi-Fi желісіне рұқсат бер.</p></div><button class="secondary disconnect" id="disconnectButton">Байланысты ажырату</button><p id="pairFeedback" class="feedback" aria-live="polite"></p></section>
+    <section id="history" class="page" hidden><div class="eyebrow">КІШКЕНТАЙ СӘТТЕР</div><h1>Жіберу тарихы</h1><p class="subtitle">Соңғы 10 әрекет. Тек осы сессияда.</p><div id="historyList" class="history-list"><div class="empty-history"><span>◷</span><strong>Бәрі алғашқы сәттен басталады.</strong><p>Бір нәрсе жібер. Ізі осы жерде қалады.</p></div></div></section>
+    <footer><span><i class="footer-dot"></i>Өз кеңістігіңде қал.</span><span class="footer-right">Android <b>↔</b> Windows</span></footer>
   </main>
 </div>
 <input type="file" id="browserImageInput" accept="image/png,image/jpeg" hidden>
+<canvas id="transferCanvas" aria-hidden="true"></canvas>
 <dialog id="trustDialog"><h2>Қауіпсіздік таңбасын салыстыр</h2><p>Мына таңба ноутбуктағы «Байланыс» бөлімінде дәл осылай көрсетілген бе?</p><code id="trustFingerprint"></code><div class="dialog-actions"><button class="secondary" id="rejectTrust">Бас тарту</button><button class="primary" id="confirmTrust">Иә, бірдей</button></div></dialog>
 </body></html>

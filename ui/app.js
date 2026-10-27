@@ -9,6 +9,7 @@
     ? requestedPlatform : (/Android|iPhone|iPad/i.test(navigator.userAgent) || innerWidth <= 600 ? 'android' : 'windows');
   let connected = false, mode = 'text', image = null, last = null, sequence = 0, busy = false;
   const pending = new Map(), historyItems = [];
+  const effects = window.BailanysEffects;
   const navigation = document.querySelector('nav');
   const sidebar = document.querySelector('.sidebar');
 
@@ -22,8 +23,8 @@
   }
 
   function arrangeNavigation() {
-    if (platform === 'android' || innerWidth <= 720) document.querySelector('main').append(navigation);
-    else sidebar.insertBefore(navigation, document.querySelector('.local-note'));
+    if (platform === 'android' || innerWidth <= 900) document.querySelector('main').append(navigation);
+    else sidebar.insertBefore(navigation, document.querySelector('.device'));
   }
 
   function renderPlatform(value) {
@@ -56,6 +57,8 @@
 
   function state(data) {
     connected = Boolean(data.connected);
+    document.body.dataset.connected = String(connected);
+    if (!connected) effects?.reset();
     const device = data.deviceName || (platform === 'windows' ? 'Телефон' : 'Ноутбук');
     $('deviceName').textContent = connected ? device + (preview ? ' · демо' : '') : 'Құрылғы қосылмаған';
     $('statusText').textContent = connected ? (preview ? 'Демо қосылды' : 'Қосылды') : 'Қосылмаған';
@@ -127,6 +130,7 @@
 
   function setMode(value) {
     mode = value;
+    document.body.dataset.mode = value;
     $('textPanel').hidden = value !== 'text';
     $('imagePanel').hidden = value !== 'image';
     for (const type of ['text', 'image']) {
@@ -151,6 +155,7 @@
   function showImage() {
     if (image?.preview) { $('imagePreview').src = image.preview; $('imagePreview').hidden = false; }
     $('imageName').textContent = image?.name || 'Сурет таңдалды';
+    $('imagePicker').classList.toggle('has-image', Boolean(image));
   }
   $('pickImage').onclick = async () => {
     if (preview) { $('browserImageInput').value = ''; $('browserImageInput').click(); return; }
@@ -197,8 +202,15 @@
     if (mode === 'text' && !$('textInput').value.trim()) { feedback('Мәтінді немесе кодыңды енгіз.', true); return; }
     if (mode === 'image' && !image) { feedback('Алдымен суретті таңда.', true); return; }
     busy = true; $('sendButton').disabled = true;
+    $('sendButton').classList.add('is-sending');
+    const sendLabel = $('sendButton').firstElementChild.textContent;
+    $('sendButton').firstElementChild.textContent = mode === 'image' ? 'Бөлшектерге айналып…' : 'Жіберілуде…';
+    for (const id of ['previewAndroid', 'previewWindows', 'showDemoResult', 'pickImage', 'useDemoImage', 'textTab', 'imageTab']) {
+      if ($(id)) $(id).disabled = true;
+    }
     try {
       if (preview) {
+        await effects?.send({ type: mode });
         received(mode === 'text' ? { type: 'text', text: $('textInput').value, copied: false }
           : { type: 'image', preview: image.preview, file: image.file, name: image.name, copied: false });
         feedback('Демо жіберілді. Жоғарыдағы «Ноутбук» көрінісін аш.');
@@ -206,11 +218,19 @@
       } else {
         feedback('Жіберілуде…');
         await call(mode === 'text' ? 'sendText' : 'sendImage', mode === 'text' ? { text: $('textInput').value } : { imageId: image.id });
+        await effects?.send({ type: mode });
         feedback('Жіберілді. Ноутбукта Ctrl + V бас.');
         record(mode === 'text' ? $('textInput').value : image.name || 'Сурет', mode, 'Жіберілді');
       }
     } catch (error) { feedback(error.message, true); }
-    finally { busy = false; $('sendButton').disabled = false; }
+    finally {
+      busy = false; $('sendButton').disabled = false;
+      $('sendButton').classList.remove('is-sending');
+      $('sendButton').firstElementChild.textContent = sendLabel;
+      for (const id of ['previewAndroid', 'previewWindows', 'showDemoResult', 'pickImage', 'useDemoImage', 'textTab', 'imageTab']) {
+        if ($(id)) $(id).disabled = false;
+      }
+    }
   };
 
   $('demoConnect').onclick = () => {
@@ -256,6 +276,8 @@
     } else $('receivedContent').textContent = data.text;
     $('receiveBadge').textContent = preview ? 'Демо қабылданды' : data.copied ? 'Буферге көшірілді' : 'Қабылданды';
     $('copyAgain').disabled = false;
+    $('demoStart').hidden = true;
+    effects?.receive($('receivedContent'));
     record(data.type === 'image' ? data.name || 'Сурет' : data.text, data.type, preview ? 'Демо · Телефон → Ноутбук' : 'Қабылданды');
     if (!preview) feedback(data.copied ? 'Буферге көшірілді. Ctrl + V бас.' : 'Қабылданды. Буферге қайта көшіруге болады.');
   }
@@ -295,6 +317,17 @@
   if (preview) {
     document.body.classList.add('browser-preview');
     $('previewToolbar').hidden = false; $('environment').hidden = false; $('demoPair').hidden = false;
+    $('demoStart').hidden = false; $('useDemoImage').hidden = false;
+    function useDemoImage() {
+      image = { name: 'Кішкене жақынырақ · сынақ суреті', preview: new URL('assets/demo-art.svg', location.href).href };
+      setMode('image'); showImage();
+      feedback('Сынақ суреті дайын. Жіберіп, бөлшектерге ыдырауын көр.');
+    }
+    $('useDemoImage').onclick = useDemoImage;
+    $('demoStart').onclick = () => {
+      renderPlatform('android'); state({ connected: true }); tab('clipboard'); useDemoImage();
+      $('imagePanel').scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+    };
     document.querySelector('#connection > .subtitle').textContent = 'Жұптасқан және ажыратылған күйлерді осы бетте сына.';
     document.querySelector('.local-note').textContent = 'Браузердегі интерфейс сынағы';
     $('privacyTitle').textContent = 'Сынақ деректері осы бетте қалады';

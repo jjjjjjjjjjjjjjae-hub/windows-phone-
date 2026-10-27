@@ -8,7 +8,7 @@ const assert = require('node:assert/strict');
 const root = path.resolve(__dirname, '..');
 const output = path.join(root, 'docs/screenshots');
 const prefix = '/windows-phone-/';
-const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css' };
+const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml' };
 
 (async () => {
   fs.mkdirSync(output, { recursive: true });
@@ -25,7 +25,7 @@ const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   let browser;
   try {
-    browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
+    browser = await chromium.launch({ headless: true, channel: process.env.PLAYWRIGHT_CHANNEL || undefined, args: ['--no-sandbox'] });
     const context = await browser.newContext({ viewport: { width: 412, height: 892 }, permissions: ['clipboard-read', 'clipboard-write'] });
     const page = await context.newPage();
     const errors = [];
@@ -65,6 +65,9 @@ const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css
     await page.locator('#browserImageInput').setInputFiles({ name: 'test-image.png', mimeType: 'image/png', buffer: png });
     await page.waitForFunction(() => document.getElementById('imageName').textContent === 'test-image.png');
     await page.locator('#sendButton').click();
+    await page.locator('#transferCanvas[data-active="true"]').waitFor({ state: 'visible' });
+    assert(Number(await page.locator('#transferCanvas').getAttribute('data-particles')) > 100, 'Image breaks into real fragments');
+    await page.screenshot({ path: path.join(output, 'particles.png') });
     await page.locator('#showDemoResult').click();
     await page.locator('#receivedContent img').waitFor({ state: 'visible' });
     assert.equal(await page.locator('#receivedContent img').evaluate(img => img.naturalWidth), 100);
@@ -80,6 +83,7 @@ const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css
     for (let i = 0; i < 11; i++) {
       await page.locator('#textInput').fill('Демо хабарлама ' + i);
       await page.locator('#sendButton').click();
+      await page.waitForFunction(() => !document.getElementById('sendButton').disabled);
     }
     await page.locator('.nav[data-tab="history"]').click();
     assert.equal(await page.locator('.history-item').count(), 10, 'History is bounded');
@@ -106,8 +110,27 @@ const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css
     assert.equal(await page.locator('.history-item').count(), 0, 'Reload clears demo history');
     assert(await page.locator('#copyAgain').isDisabled(), 'Reload clears received data');
     assert(await page.locator('#disconnectButton').isDisabled(), 'Reload clears demo connection');
+    await page.locator('#demoStart').click();
+    await page.waitForFunction(() => document.getElementById('imagePreview').complete && document.getElementById('imagePreview').naturalWidth > 0);
+    assert.equal(await page.locator('body').getAttribute('data-platform'), 'android', 'One-click effect demo opens sender');
+    await page.setViewportSize({ width: 412, height: 892 });
+    await page.screenshot({ path: path.join(output, 'android.png'), fullPage: true });
+    await page.locator('#sendButton').click();
+    await page.locator('#showDemoResult').waitFor({ state: 'visible' });
+    await page.waitForFunction(() => !document.getElementById('sendButton').disabled);
+    assert.equal(await page.locator('#transferCanvas').getAttribute('data-active'), 'false', 'Animation canvas is cleaned up');
+    assert.equal(await page.locator('#imagePreview').evaluate(img => img.classList.contains('image-sending')), false, 'Image returns after the effect');
     assert.deepEqual(errors, [], 'No browser script errors');
     await context.close();
+
+    const quiet = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1130, height: 900 } });
+    const quietPage = await quiet.newPage();
+    await quietPage.goto(base + 'ui/?platform=windows');
+    await quietPage.locator('#demoStart').click();
+    await quietPage.locator('#sendButton').click();
+    await quietPage.waitForFunction(() => !document.getElementById('sendButton').disabled);
+    assert.notEqual(await quietPage.locator('#transferCanvas').getAttribute('data-active'), 'true', 'Reduced motion skips image particles');
+    await quiet.close();
 
     // Smoke check that embedded clients still use their native message bridge.
     const native = await browser.newContext({ viewport: { width: 1130, height: 780 } });
@@ -123,8 +146,9 @@ const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css
     assert.equal(await nativePage.locator('#deviceName').innerText(), 'Native test');
     await native.close();
     const desktop = await sharp(path.join(output, 'windows.png')).resize({ width: 980 }).png().toBuffer();
+    const desktopHeight = (await sharp(desktop).metadata()).height;
     const mobile = await sharp(path.join(output, 'android.png')).resize({ height: 740 }).png().toBuffer();
-    await sharp({ create: { width: 1380, height: 830, channels: 4, background: '#edf1f7' } })
+    await sharp({ create: { width: 1380, height: Math.max(830, desktopHeight + 50), channels: 4, background: '#edf1f7' } })
       .composite([{ input: desktop, left: 22, top: 25 }, { input: mobile, left: 1025, top: 40 }])
       .png().toFile(path.join(output, 'bailanys.png'));
     console.log('Passed: root/subpath links, both views, pairing, text/image sending, clipboard, validation, history, disconnect, reload, responsive navigation, native bridge.');
