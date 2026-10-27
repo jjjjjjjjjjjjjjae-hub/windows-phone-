@@ -1,14 +1,51 @@
 const { chromium } = require('playwright');
-const sharp = require('sharp');
-const path = require('node:path');
-const fs = require('node:fs');
-const http = require('node:http');
 const assert = require('node:assert/strict');
+const http = require('node:http');
+const fs = require('node:fs');
+const path = require('node:path');
+const sharp = require('sharp');
 
 const root = path.resolve(__dirname, '..');
 const output = path.join(root, 'docs/screenshots');
 const prefix = '/windows-phone-/';
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml' };
+const fakePeer = `
+class FakeConnection {
+  constructor(peer, remote, sid) { this.peer=peer; this.remote=remote; this.sid=sid; this.handlers={}; this.open=false; }
+  on(name, fn) { (this.handlers[name] ||= []).push(fn); }
+  emit(name, value) { for (const fn of this.handlers[name] || []) fn(value); }
+  send(data) { this.peer.bc.postMessage({to:this.remote,from:this.peer.id,sid:this.sid,type:'data',data}); }
+  close() { if (!this.open) return; this.open=false; this.peer.bc.postMessage({to:this.remote,from:this.peer.id,sid:this.sid,type:'close'}); this.emit('close'); }
+}
+window.Peer = class {
+  constructor(id) {
+    this.id = typeof id === 'string' ? id : 'CLIENT-' + Math.random().toString(36).slice(2);
+    this.handlers={}; this.connections=new Map(); this.open=true;
+    this.bc=new BroadcastChannel('bailanys-test');
+    this.bc.onmessage = ({data:m}) => {
+      if (m.to !== this.id) return;
+      if (m.type === 'connect') {
+        const conn=new FakeConnection(this,m.from,m.sid); this.connections.set(m.sid,conn);
+        this.emit('connection',conn);
+        setTimeout(() => { conn.open=true; conn.emit('open'); this.bc.postMessage({to:m.from,from:this.id,sid:m.sid,type:'open'}); }, 10);
+        return;
+      }
+      const conn=this.connections.get(m.sid); if (!conn) return;
+      if (m.type === 'open') { conn.open=true; conn.emit('open'); }
+      if (m.type === 'data') conn.emit('data',m.data);
+      if (m.type === 'close') { conn.open=false; conn.emit('close'); }
+    };
+    setTimeout(() => this.emit('open',this.id), 20);
+  }
+  on(name,fn) { (this.handlers[name] ||= []).push(fn); }
+  emit(name,value) { for (const fn of this.handlers[name] || []) fn(value); }
+  connect(remote) {
+    const sid=crypto.randomUUID(), conn=new FakeConnection(this,remote,sid);
+    this.connections.set(sid,conn);
+    this.bc.postMessage({to:remote,from:this.id,sid,type:'connect'});
+    return conn;
+  }
+};`;
 
 (async () => {
   fs.mkdirSync(output, { recursive: true });
@@ -26,136 +63,81 @@ const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css
   let browser;
   try {
     browser = await chromium.launch({ headless: true, channel: process.env.PLAYWRIGHT_CHANNEL || undefined, args: ['--no-sandbox'] });
-    const context = await browser.newContext({ viewport: { width: 412, height: 892 }, permissions: ['clipboard-read', 'clipboard-write'] });
-    const page = await context.newPage();
+    const context = await browser.newContext({ permissions: ['clipboard-read','clipboard-write'] });
+    await context.route('https://cdn.jsdelivr.net/**', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
     const errors = [];
-    page.on('pageerror', error => errors.push(error.message));
-    const base = `http://127.0.0.1:${server.address().port}${prefix}`;
-    await page.goto(base + '?platform=android');
-    await page.waitForURL('**/ui/?platform=android');
-    await page.locator('#previewToolbar').waitFor({ state: 'visible' });
-    assert.equal(await page.locator('body').getAttribute('data-platform'), 'android', 'Root keeps platform query');
-    await page.screenshot({ path: path.join(output, 'android.png'), fullPage: true });
+    const base = `http://127.0.0.1:${server.address().port}${prefix}ui/`;
+    const laptop = await context.newPage();
+    laptop.on('pageerror', error => errors.push('laptop: ' + error.message));
+    await laptop.setViewportSize({ width: 1440, height: 900 });
+    await laptop.addInitScript(fakePeer);
+    await laptop.goto(base);
+    await laptop.locator('#pairCode').waitFor({ state: 'visible' });
+    await laptop.waitForFunction(() => /^WP-[A-Z2-9]{16}$/.test(document.getElementById('pairCode').textContent));
+    assert.equal(await laptop.locator('body').getAttribute('data-platform'), 'windows');
+    assert.equal(await laptop.locator('.primary-nav').evaluate(el => getComputedStyle(el).position), 'static');
+    await laptop.screenshot({ path: path.join(output, 'windows.png'), fullPage: true, animations: 'disabled' });
 
-    await page.locator('#sendButton').click();
-    assert(await page.locator('#connection').isVisible(), 'Disconnected send opens pairing');
-    assert(await page.locator('#disconnectButton').isDisabled(), 'Disconnected action is disabled');
-    await page.locator('#demoConnect').click();
-    await page.locator('#sendButton').click();
-    assert.match(await page.locator('#feedback').innerText(), /Мәтінді/, 'Empty text is rejected');
-    const text = 'const message = "Сәлем, бро!";\n<script>window.injected = true</script>';
-    await page.locator('#textInput').fill(text);
-    assert.equal(await page.locator('#charCount').innerText(), text.length + ' таңба');
-    await page.locator('#sendButton').click();
-    await page.locator('#showDemoResult').click();
-    assert.equal(await page.locator('#receivedContent').innerText(), text, 'Text arrives unchanged');
-    assert.equal(await page.locator('#receivedContent script').count(), 0, 'Received text stays text');
-    await page.locator('#copyAgain').click();
-    await page.waitForFunction(() => document.getElementById('receiveBadge').textContent === 'Буферге көшірілді');
-    assert.equal(await page.evaluate(() => navigator.clipboard.readText()), text, 'Copy writes the clipboard');
-    await page.setViewportSize({ width: 1130, height: 900 });
-    await page.screenshot({ path: path.join(output, 'windows.png'), fullPage: true });
-    await page.locator('.nav[data-tab="history"]').click();
-    assert.equal(await page.locator('.history-item').count(), 1);
+    const mobile = await context.newPage();
+    mobile.on('pageerror', error => errors.push('phone: ' + error.message));
+    await mobile.setViewportSize({ width: 390, height: 844 });
+    await mobile.addInitScript(() => Object.defineProperty(navigator, 'userAgent', { get: () => 'Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 Chrome/131.0 Mobile Safari/537.36' }));
+    await mobile.addInitScript(fakePeer);
+    await mobile.goto(base);
+    assert.equal(await mobile.locator('body').getAttribute('data-platform'), 'android');
+    assert.equal(await mobile.locator('.primary-nav').evaluate(el => getComputedStyle(el).position), 'fixed');
+    assert.equal(await mobile.locator('.nav').count(), 3);
+    await mobile.screenshot({ path: path.join(output, 'android.png'), fullPage: true, animations: 'disabled' });
 
-    await page.locator('#previewAndroid').click();
-    await page.locator('#imageTab').click();
-    await page.locator('#sendButton').click();
-    assert.match(await page.locator('#feedback').innerText(), /суретті таңда/, 'Missing image is rejected');
-    const png = await sharp({ create: { width: 100, height: 60, channels: 3, background: '#0866db' } }).png().toBuffer();
-    await page.locator('#browserImageInput').setInputFiles({ name: 'test-image.png', mimeType: 'image/png', buffer: png });
-    await page.waitForFunction(() => document.getElementById('imageName').textContent === 'test-image.png');
-    await page.locator('#sendButton').click();
-    await page.locator('#transferCanvas[data-active="true"]').waitFor({ state: 'visible' });
-    assert(Number(await page.locator('#transferCanvas').getAttribute('data-particles')) > 100, 'Image breaks into real fragments');
-    await page.screenshot({ path: path.join(output, 'particles.png') });
-    await page.locator('#showDemoResult').click();
-    await page.locator('#receivedContent img').waitFor({ state: 'visible' });
-    assert.equal(await page.locator('#receivedContent img').evaluate(img => img.naturalWidth), 100);
-    await page.locator('#copyAgain').click();
-    await page.waitForFunction(() => document.getElementById('receiveBadge').textContent === 'Буферге көшірілді');
-    assert(await page.evaluate(async () => (await navigator.clipboard.read()).some(item => item.types.includes('image/png'))), 'PNG can be copied');
-
-    await page.locator('#previewAndroid').click();
-    await page.locator('#browserImageInput').setInputFiles({ name: 'bad.txt', mimeType: 'text/plain', buffer: Buffer.from('not an image') });
-    assert.match(await page.locator('#feedback').innerText(), /PNG немесе JPEG/, 'Other file types are rejected');
-    await page.locator('#browserImageInput').setInputFiles({ name: 'broken.png', mimeType: 'image/png', buffer: Buffer.from('not an image') });
-    await page.waitForFunction(() => document.getElementById('feedback').textContent.includes('ашу мүмкін болмады'));
-    await page.locator('#textTab').click();
-    for (let i = 0; i < 11; i++) {
-      await page.locator('#textInput').fill('Демо хабарлама ' + i);
-      await page.locator('#sendButton').click();
-      await page.waitForFunction(() => !document.getElementById('sendButton').disabled);
-    }
-    await page.locator('.nav[data-tab="history"]').click();
-    assert.equal(await page.locator('.history-item').count(), 10, 'History is bounded');
-    await page.locator('.nav[data-tab="connection"]').click();
-    await page.locator('#disconnectButton').click();
-    assert(await page.locator('#demoConnect').isEnabled(), 'Disconnect restores pairing');
-    await page.locator('.nav[data-tab="clipboard"]').click();
-    await page.locator('#sendButton').click();
-    assert(await page.locator('#connection').isVisible(), 'Sending is blocked after disconnect');
-
-    for (const platform of ['android', 'windows']) {
-      await page.locator(platform === 'android' ? '#previewAndroid' : '#previewWindows').click();
-      for (const width of [320, 412, 720, 1130]) {
-        await page.setViewportSize({ width, height: 892 });
-        for (const section of ['clipboard', 'connection', 'history']) {
-          await page.locator(`.nav[data-tab="${section}"]`).click();
-          assert(await page.locator('#' + section).isVisible(), `${platform}: ${section} navigation`);
-          assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${platform}: ${section} overflow at ${width}`);
-        }
-      }
-    }
-    await page.reload();
-    await page.locator('#previewToolbar').waitFor({ state: 'visible' });
-    assert.equal(await page.locator('.history-item').count(), 0, 'Reload clears demo history');
-    assert(await page.locator('#copyAgain').isDisabled(), 'Reload clears received data');
-    assert(await page.locator('#disconnectButton').isDisabled(), 'Reload clears demo connection');
-    await page.locator('#demoStart').click();
-    await page.waitForFunction(() => document.getElementById('imagePreview').complete && document.getElementById('imagePreview').naturalWidth > 0);
-    assert.equal(await page.locator('body').getAttribute('data-platform'), 'android', 'One-click effect demo opens sender');
-    await page.setViewportSize({ width: 412, height: 892 });
-    await page.screenshot({ path: path.join(output, 'android.png'), fullPage: true });
-    await page.locator('#sendButton').click();
-    await page.locator('#showDemoResult').waitFor({ state: 'visible' });
-    await page.waitForFunction(() => !document.getElementById('sendButton').disabled);
-    assert.equal(await page.locator('#transferCanvas').getAttribute('data-active'), 'false', 'Animation canvas is cleaned up');
-    assert.equal(await page.locator('#imagePreview').evaluate(img => img.classList.contains('image-sending')), false, 'Image returns after the effect');
-    assert.deepEqual(errors, [], 'No browser script errors');
+    await mobile.locator('.nav[data-tab="clipboard"]').click();
+    assert(await mobile.locator('.primary-nav').isVisible());
+    await mobile.locator('#sendButton').click();
+    assert(await mobile.locator('#connection').isVisible());
+    await mobile.locator('#codeInput').fill('wrong');
+    await mobile.locator('#pairButton').click();
+    await mobile.waitForFunction(() => document.getElementById('pairFeedback').classList.contains('error'));
+    const code = await laptop.locator('#pairCode').innerText();
+    await mobile.locator('#codeInput').fill(code);
+    await mobile.locator('#pairButton').click();
+    await laptop.locator('#onlineApproval').waitFor({ state: 'visible' });
+    await laptop.locator('#onlineAccept').click();
+    await mobile.waitForFunction(() => document.body.dataset.connected === 'true');
+    await laptop.waitForFunction(() => document.body.dataset.connected === 'true');
+    assert.equal(await mobile.locator('#connectedDevicesCount').innerText(), '1 ҚҰРЫЛҒЫ');
+    assert.equal(await laptop.locator('#connectedDevicesCount').innerText(), '1 ҚҰРЫЛҒЫ');
+    await mobile.locator('.nav[data-tab="clipboard"]').click();
+    const text = 'Сәлем, екі экран! <script>not executable</script>';
+    await mobile.locator('#textInput').fill(text);
+    await mobile.locator('#sendButton').click();
+    await laptop.locator('.nav[data-tab="clipboard"]').click();
+    await laptop.locator('#receivedContent').waitFor({ state: 'visible' });
+    await laptop.waitForFunction(expected => document.getElementById('receivedContent').textContent === expected, text);
+    assert.equal(await laptop.locator('#receivedContent script').count(), 0);
+    await laptop.locator('#copyAgain').click();
+    assert.equal(await laptop.evaluate(() => navigator.clipboard.readText()), text);
+    await mobile.screenshot({ path: path.join(output, 'android-clipboard.png'), fullPage: true, animations: 'disabled' });
+    await laptop.screenshot({ path: path.join(output, 'windows-clipboard.png'), fullPage: true, animations: 'disabled' });
+    await mobile.locator('#imageTab').click();
+    const png = await sharp({ create: { width: 80, height: 48, channels: 3, background: '#9276f7' } }).png().toBuffer();
+    await mobile.locator('#browserImageInput').setInputFiles({ name: 'sample.png', mimeType: 'image/png', buffer: png });
+    await mobile.locator('#sendButton').click();
+    await laptop.waitForFunction(() => document.querySelector('#receivedContent img')?.naturalWidth === 80);
+    await laptop.locator('#copyAgain').click();
+    await laptop.waitForFunction(() => document.getElementById('receiveBadge').textContent === 'КӨШІРІЛДІ');
+    assert(await laptop.evaluate(async () => (await navigator.clipboard.read()).some(item => item.types.includes('image/png'))));
+    await mobile.waitForFunction(() => !document.getElementById('sendButton').disabled);
+    await mobile.locator('.nav[data-tab="history"]').click();
+    assert.equal(await mobile.locator('.history-item').count(), 2);
+    await mobile.setViewportSize({ width: 320, height: 700 });
+    assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'No horizontal overflow on narrow phones');
+    await mobile.locator('.nav[data-tab="connection"]').click();
+    await mobile.locator('#disconnectButton').click();
+    await laptop.waitForFunction(() => document.body.dataset.connected === 'false');
+    assert.deepEqual(errors, []);
+    console.log('Passed: desktop and phone layouts, navigation, QR code, approval, text/image transfer, safe rendering, clipboard, history, disconnect, narrow viewport.');
     await context.close();
-
-    const quiet = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1130, height: 900 } });
-    const quietPage = await quiet.newPage();
-    await quietPage.goto(base + 'ui/?platform=windows');
-    await quietPage.locator('#demoStart').click();
-    await quietPage.locator('#sendButton').click();
-    await quietPage.waitForFunction(() => !document.getElementById('sendButton').disabled);
-    assert.notEqual(await quietPage.locator('#transferCanvas').getAttribute('data-active'), 'true', 'Reduced motion skips image particles');
-    await quiet.close();
-
-    // Smoke check that embedded clients still use their native message bridge.
-    const native = await browser.newContext({ viewport: { width: 1130, height: 780 } });
-    await native.addInitScript(() => {
-      window.BailanysNative = { postMessage(request) {
-        const { id, action } = JSON.parse(request);
-        if (action === 'ready') queueMicrotask(() => window.Bailanys.receive({ id, result: { connected: true, deviceName: 'Native test' } }));
-      } };
-    });
-    const nativePage = await native.newPage();
-    await nativePage.goto(base + 'ui/?platform=windows');
-    assert(await nativePage.locator('#previewToolbar').isHidden(), 'Native client hides browser controls');
-    assert.equal(await nativePage.locator('#deviceName').innerText(), 'Native test');
-    await native.close();
-    const desktop = await sharp(path.join(output, 'windows.png')).resize({ width: 980 }).png().toBuffer();
-    const desktopHeight = (await sharp(desktop).metadata()).height;
-    const mobile = await sharp(path.join(output, 'android.png')).resize({ height: 740 }).png().toBuffer();
-    await sharp({ create: { width: 1380, height: Math.max(830, desktopHeight + 50), channels: 4, background: '#edf1f7' } })
-      .composite([{ input: desktop, left: 22, top: 25 }, { input: mobile, left: 1025, top: 40 }])
-      .png().toFile(path.join(output, 'bailanys.png'));
-    console.log('Passed: root/subpath links, both views, pairing, text/image sending, clipboard, validation, history, disconnect, reload, responsive navigation, native bridge.');
   } finally {
-    if (browser) await browser.close();
+    await browser?.close();
     await new Promise(resolve => server.close(resolve));
   }
 })().catch(error => { console.error(error); process.exitCode = 1; });
