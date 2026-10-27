@@ -19,7 +19,7 @@
   function drawConnectedDevices() {
     const panel = $('connectedDevices');
     if (!panel) return;
-    panel.hidden = false;
+    panel.hidden = !connected;
     const list = $('connectedDevicesList');
     const count = $('connectedDevicesCount');
     list.replaceChildren();
