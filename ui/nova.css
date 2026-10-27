@@ -1,0 +1,85 @@
+
+/* NOVA 21 — entirely original device screen: HTML + CSS + inline SVG, no photo assets. */
+body[data-platform="android"].cosmic-active main{background:#040519!important}
+body[data-platform="android"].cosmic-active #connection{padding:0!important;min-height:100dvh;overflow:hidden!important}
+body[data-platform="android"].cosmic-active #cosmicDevices{
+ display:block!important;width:100%!important;max-width:650px!important;height:auto!important;
+ min-height:100dvh!important;aspect-ratio:auto!important;overflow:hidden!important;
+ position:relative!important;margin:0 auto!important;background:
+ radial-gradient(ellipse 82% 31% at 53% 24%,#2d117358,transparent 92%),
+ radial-gradient(ellipse 85% 36% at 91% 72%,#18227056,transparent 92%),
+ linear-gradient(165deg,#030416,#0c082b 48%,#05051c)!important;
+}
+body.cosmic-active #cosmicDevices .nova-scene{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+body.cosmic-active #cosmicDevices .nova-nebula{position:absolute;border-radius:50%;filter:blur(46px);opacity:.42}
+body.cosmic-active #cosmicDevices .nova-nebula-one{top:13%;left:-28%;height:40%;width:86%;background:#5113be4f;animation:nova-cloud 12s ease-in-out infinite alternate}
+body.cosmic-active #cosmicDevices .nova-nebula-two{top:37%;right:-30%;height:43%;width:84%;background:#0b55b854;animation:nova-cloud 13s ease-in-out -5s infinite alternate-reverse}
+body.cosmic-active #cosmicDevices .cosmic-starfield{display:block!important;position:absolute;inset:0;pointer-events:none;z-index:1}
+body.cosmic-active #cosmicDevices .cosmic-starfield i{opacity:.2}
+body.cosmic-active #cosmicDevices .nova-lightfield{position:absolute;inset:0;width:100%;height:100%;opacity:.62;filter:drop-shadow(0 0 8px #9a38ff)}
+body.cosmic-active #cosmicDevices .nova-light-waves{animation:nova-waves 10s ease-in-out infinite alternate;transform-origin:center}
+body.cosmic-active #cosmicDevices .nova-layout{position:relative;z-index:2;min-height:100dvh;display:flex;flex-direction:column;padding:calc(25px + env(safe-area-inset-top,0px)) 23px calc(150px + env(safe-area-inset-bottom,0px))}
+body.cosmic-active #cosmicDevices .nova-topbar{display:flex;justify-content:space-between;gap:10px;align-items:center}
+body.cosmic-active #cosmicDevices .nova-identity{display:flex;align-items:center;gap:10px}
+body.cosmic-active #cosmicDevices .nova-app-icon{display:grid;place-items:center;width:39px;height:39px;border:1px solid #c17aff96;border-radius:13px;background:linear-gradient(140deg,#6b2fd4,#251055);box-shadow:0 0 19px #9c3cff67;color:#f8d5ff;font-size:29px;text-shadow:0 0 12px #fff}
+body.cosmic-active #cosmicDevices .nova-app-name{display:flex;flex-direction:column;gap:4px}
+body.cosmic-active #cosmicDevices .nova-app-name strong{font-size:15px;font-weight:760;letter-spacing:2.4px;color:#f9efff}
+body.cosmic-active #cosmicDevices .nova-app-name small{font-size:7px;letter-spacing:1.5px;color:#aaa0d4}
+body.cosmic-active #cosmicDevices .nova-top-state{display:flex;align-items:center;gap:6px;border:1px solid #9f7bfa4d;background:#0e1038a8;padding:8px 10px;border-radius:999px;font-size:9px;color:#c7b9e5;white-space:nowrap}
+body.cosmic-active #cosmicDevices .nova-top-state i{height:6px;width:6px;border-radius:50%;background:#9586c1;box-shadow:0 0 10px #ad7dff}
+body[data-connected=true].cosmic-active #cosmicDevices .nova-top-state i{background:#72efcd;box-shadow:0 0 11px #72efcd}
+body.cosmic-active #cosmicDevices .nova-content{display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;min-height:520px;gap:0;padding-bottom:24px}
+body.cosmic-active #cosmicDevices .nova-eyebrow{display:flex;align-items:center;gap:9px;font-size:9px;letter-spacing:2px;font-weight:650;color:#b4a4dd}
+body.cosmic-active #cosmicDevices .nova-eyebrow i{height:1px;width:20px;background:linear-gradient(90deg,transparent,#b47aff)}
+body.cosmic-active #cosmicDevices .nova-eyebrow i:last-child{transform:rotate(180deg)}
+body.cosmic-active #cosmicDevices .nova-emblem{width:min(100%,400px);height:clamp(202px,32dvh,290px);position:relative;display:grid;place-items:center;isolation:isolate}
+body.cosmic-active #cosmicDevices .nova-emblem-halo{position:absolute;inset:13% 5%;z-index:-1;border-radius:50%;background:radial-gradient(ellipse,#6c27dc55,transparent 70%);filter:blur(20px);animation:nova-aura 6s ease-in-out infinite alternate}
+body.cosmic-active #cosmicDevices .nova-ring{position:absolute;width:71%;height:67%;border-radius:50%;border:1px solid #863aff27;transform:rotate(-22deg) scaleY(.62)}
+body.cosmic-active #cosmicDevices .nova-ring-two{width:93%;height:80%;border-style:dashed;border-color:#597aff1f;transform:rotate(26deg) scaleY(.72)}
+body.cosmic-active #cosmicDevices .cosmic-scan-hit{
+ display:grid!important;place-items:center!important;position:relative!important;top:auto!important;left:auto!important;
+ width:100%!important;height:76%!important;z-index:5!important;padding:0!important;margin:0!important;
+ background:transparent!important;border:0!important;filter:none!important;box-shadow:none!important;
+ border-radius:40px!important;cursor:pointer;touch-action:manipulation;overflow:visible!important;
+}
+body.cosmic-active #cosmicDevices .nova-infinity{width:100%;height:100%;display:block;overflow:visible;filter:drop-shadow(0 0 11px #a744ff8c);transition:transform .25s ease,filter .25s ease}
+body.cosmic-active #cosmicDevices .cosmic-scan-hit:active .nova-infinity{transform:scale(.95);filter:drop-shadow(0 0 24px #d98aff)}
+body.cosmic-active #cosmicDevices .nova-emblem-caption{position:absolute;bottom:5%;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:10px;font-size:8px;letter-spacing:2px;color:#bbace7}
+body.cosmic-active #cosmicDevices .nova-emblem-caption i{width:4px;height:4px;border-radius:50%;background:#ba74ff;box-shadow:0 0 8px #af6eff}
+body.cosmic-active #cosmicDevices .nova-headline{text-align:center;max-width:335px;margin:10px auto 0}
+body.cosmic-active #cosmicDevices .nova-headline h2{font-size:clamp(31px,8.4vw,42px);font-weight:760;line-height:1.13;letter-spacing:-1.4px;color:#fff}
+body.cosmic-active #cosmicDevices .nova-headline h2 span{background:linear-gradient(105deg,#e79dff,#bbaaff,#83cfff);-webkit-background-clip:text;background-clip:text;color:transparent}
+body.cosmic-active #cosmicDevices .nova-headline p{margin:14px auto 0;font-size:12px;color:#aaa2cf;line-height:1.75;max-width:286px}
+body.cosmic-active #cosmicDevices .nova-actions{width:min(100%,350px);display:flex;flex-direction:column;align-items:center;margin-top:26px;gap:12px}
+body.cosmic-active #cosmicDevices .nova-main-action{position:relative;display:flex;align-items:center;justify-content:center;gap:11px;width:100%;padding:13px 17px;min-height:57px;border:1px solid #ecc5ff79;border-radius:17px;background:linear-gradient(110deg,#8529e8,#a747fb 53%,#6d7cfc);box-shadow:inset 0 1px #ffffff75,0 11px 37px #7f26eb6c;color:white;font-size:13px;font-weight:670;letter-spacing:.1px}
+body.cosmic-active #cosmicDevices .nova-action-icon{height:29px;width:29px;display:grid;place-items:center;background:#ffffff2e;border-radius:9px}
+body.cosmic-active #cosmicDevices .nova-action-icon svg{width:22px;height:22px;stroke:none}
+body.cosmic-active #cosmicDevices .nova-action-arrow{margin-left:auto;font-size:23px;font-weight:400}
+body.cosmic-active #cosmicDevices .nova-code-action{padding:10px 20px;display:flex;align-items:center;gap:8px;background:transparent;border:0;color:#c5b4ee;font-size:11px;letter-spacing:.3px}
+body.cosmic-active #cosmicDevices .nova-code-action span{font-size:22px}
+body.cosmic-active #cosmicDevices .cosmic-connected-status{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;background:#102b3b91;border:1px solid #66f3cf6c;padding:12px 15px;border-radius:14px;font-size:12px;width:100%;box-shadow:0 0 22px #2de0bc27}
+body.cosmic-active #cosmicDevices .nova-disconnect{display:block;width:100%;padding:12px;border:1px solid #ad79ef70;border-radius:12px;color:#eee0ff;background:#351c594d}
+body.cosmic-active #cosmicDevices .nova-disconnect[hidden]{display:none!important}
+body.cosmic-active #cosmicDevices .nova-bottom-detail{display:flex;justify-content:center;align-items:center;gap:12px;font-size:8px;letter-spacing:1.8px;color:#807fb6;margin:6px auto 0}
+body.cosmic-active #cosmicDevices .nova-bottom-detail i{height:1px;width:32px;background:#795be589}
+body.cosmic-active #cosmicDevices .nova-bottom-dot{height:3px;width:3px;background:#916cf8;border-radius:50%}
+body.cosmic-active #connection>#androidPair.nova-code-open{
+ display:block!important;position:fixed!important;inset:0!important;z-index:96!important;overflow:auto!important;
+ background:#05041af2!important;backdrop-filter:blur(19px);padding:78px 23px 30px!important;
+ box-sizing:border-box;
+}
+body.cosmic-active #androidPair.nova-code-open>.phone-qr-tip,
+body.cosmic-active #androidPair.nova-code-open>.camera-button,
+body.cosmic-active #androidPair.nova-code-open>.camera-fallback,
+body.cosmic-active #androidPair.nova-code-open>.camera-help{display:none!important}
+.nova-code-close{display:none}
+body.cosmic-active #androidPair.nova-code-open .nova-code-close{display:grid;place-items:center;position:absolute;right:19px;top:18px;width:41px;height:41px;border:1px solid #aa7add8a;border-radius:50%;background:#23134b;color:#eee;font-size:21px}
+body.cosmic-active #androidPair.nova-code-open>.field,body.cosmic-active #androidPair.nova-code-open>.qr-divider,body.cosmic-active #androidPair.nova-code-open>.primary,body.cosmic-active #androidPair.nova-code-open>.form-note{display:block!important;max-width:520px;margin-left:auto;margin-right:auto}
+body.cosmic-active.cosmic-scanning #cameraArea{z-index:103!important}
+body.cosmic-active #cosmicDevices .cosmic-nav-hits{display:none!important}
+@keyframes nova-aura{0%{opacity:.5;transform:scale(.94)}100%{opacity:1;transform:scale(1.09)}}
+@keyframes nova-cloud{0%{transform:translate(-4%,-3%)}100%{transform:translate(5%,7%)}}
+@keyframes nova-waves{0%{transform:translateX(-12px);opacity:.6}100%{transform:translateX(12px);opacity:1}}
+@media(max-height:710px){body.cosmic-active #cosmicDevices .nova-content{min-height:440px}body.cosmic-active #cosmicDevices .nova-emblem{height:190px}body.cosmic-active #cosmicDevices .nova-layout{padding-top:16px}}
+@media(max-width:350px){body.cosmic-active #cosmicDevices .nova-layout{padding-left:14px;padding-right:14px}body.cosmic-active #cosmicDevices .nova-headline p{font-size:11px}body.cosmic-active #cosmicDevices .nova-app-name strong{font-size:12px}body.cosmic-active #cosmicDevices .nova-app-name small{font-size:6px}body.cosmic-active #cosmicDevices .nova-top-state{font-size:8px}}
+@media(prefers-reduced-motion:reduce){body.cosmic-active #cosmicDevices .nova-emblem-halo,body.cosmic-active #cosmicDevices .nova-nebula,body.cosmic-active #cosmicDevices .nova-light-waves{animation:none!important}}
