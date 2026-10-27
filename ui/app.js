@@ -254,13 +254,20 @@
   // Keep the camera overlay outside the hidden pairing form on the cosmic screen.
   if (browser && platform === 'android') $('connection').appendChild($('cameraArea'));
   $('startQrCamera').onclick = startQrCamera;
-  $('cosmicScan').onclick = () => {
+  function cosmicPair() {
     if (connected) return;
-    startQrCamera();
-  };
+    if (platform === 'android') { startQrCamera(); return; }
+    const pair = $('windowsPair');
+    pair.classList.add('cosmic-pair-open');
+  }
+  $('cosmicScan').onclick = cosmicPair;
   $('cosmicClipboard').onclick = () => tab('clipboard');
-  $('cosmicDevicesTab').onclick = () => { if (!connected) startQrCamera(); };
+  $('cosmicDevicesTab').onclick = cosmicPair;
   $('cosmicHistory').onclick = () => tab('history');
+  $('closeCosmicPair').onclick = () => $('windowsPair').classList.remove('cosmic-pair-open');
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') $('windowsPair').classList.remove('cosmic-pair-open');
+  });
 
   $('stopQrCamera').onclick = stopQrCamera;
   document.addEventListener('visibilitychange', () => { if (document.hidden) stopQrCamera(); });
@@ -268,7 +275,8 @@
 
   function tab(id) {
     if (id !== 'connection' && cameraStream) stopQrCamera();
-    document.body.classList.toggle('cosmic-active', browser && platform === 'android' && id === 'connection');
+    if (id !== 'connection') $('windowsPair').classList.remove('cosmic-pair-open');
+    document.body.classList.toggle('cosmic-active', browser && id === 'connection');
     document.querySelectorAll('.page').forEach(page => { page.hidden = page.id !== id; });
     document.querySelectorAll('.nav').forEach(button => {
       button.classList.toggle('active', button.dataset.tab === id);
@@ -284,6 +292,7 @@
 
   function renderPlatform(value) {
     platform = value;
+    if (document.querySelector('#connection')?.hidden === false) document.body.classList.toggle('cosmic-active', browser);
     document.body.dataset.platform = platform;
     const phone = platform === 'android';
     $('senderPanel').hidden = !phone;
