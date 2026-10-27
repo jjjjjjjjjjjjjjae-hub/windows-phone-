@@ -65,7 +65,101 @@
   }
 
 
+  let cameraStream = null;
+  let cameraAnimation = 0;
+  let cameraDetecting = false;
+  let cameraLastFrame = 0;
+  const cameraCanvas = document.createElement('canvas');
+  const cameraContext = cameraCanvas.getContext('2d', { willReadFrequently: true });
+  function cameraMessage(text) { $('cameraFeedback').textContent = text; }
+  function stopQrCamera() {
+    if (cameraAnimation) cancelAnimationFrame(cameraAnimation);
+    cameraAnimation = 0;
+    const video = $('qrCameraVideo');
+    video.pause();
+    video.srcObject = null;
+    if (cameraStream) cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+    cameraDetecting = false;
+    $('cameraArea').hidden = true;
+    $('startQrCamera').disabled = false;
+  }
+  function qrCodeFromValue(value) {
+    if (typeof value !== 'string' || value.length > 2048) return null;
+    try {
+      const url = new URL(value);
+      if (url.origin !== location.origin || !url.pathname.endsWith('/ui/')) return null;
+      const code = url.searchParams.get('pair');
+      return code && /^WP-[A-Z2-9]{16}$/.test(code) ? code : null;
+    } catch {
+      const code = value.trim().toUpperCase();
+      return /^WP-[A-Z2-9]{16}$/.test(code) ? code : null;
+    }
+  }
+  function completeQrScan(value) {
+    const code = qrCodeFromValue(value);
+    if (!code) {
+      cameraMessage('Бұл осы сайттың QR-коды емес. Ноутбуктағы QR-кодты көрсет.');
+      return;
+    }
+    stopQrCamera();
+    $('codeInput').value = code;
+    tab('connection');
+    feedback('QR танылды. Ноутбукте қосылуға рұқсат бер.', false, 'pairFeedback');
+    if (!connected && !busy) $('pairButton').click();
+  }
+  async function startQrCamera() {
+    if (!browser || platform !== 'android' || cameraStream) return;
+    if (!navigator.mediaDevices?.getUserMedia) {
+      feedback('Бұл браузер камераны қолдамайды. HTTPS арқылы Chrome немесе Safari аш.', true, 'pairFeedback'); return;
+    }
+    if (!cameraContext || typeof window.jsQR !== 'function') {
+      feedback('QR сканерлеу модулі жүктелмеді. Сайтты жаңартып көр.', true, 'pairFeedback'); return;
+    }
+    $('startQrCamera').disabled = true;
+    $('cameraArea').hidden = false;
+    cameraMessage('Камераға рұқсат бер…');
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+      });
+      cameraStream = stream;
+      const video = $('qrCameraVideo');
+      video.srcObject = stream;
+      await video.play();
+      cameraMessage('Ноутбуктың QR-кодын жақтаудың ішіне орналастыр.');
+      cameraDetecting = true;
+      const frame = now => {
+        if (!cameraDetecting) return;
+        cameraAnimation = requestAnimationFrame(frame);
+        if (now - cameraLastFrame < 110 || video.readyState < 2) return;
+        cameraLastFrame = now;
+        const width = Math.min(720, video.videoWidth);
+        if (!width || !video.videoHeight) return;
+        const height = Math.round(width * video.videoHeight / video.videoWidth);
+        cameraCanvas.width = width;
+        cameraCanvas.height = height;
+        cameraContext.drawImage(video, 0, 0, width, height);
+        const pixels = cameraContext.getImageData(0, 0, width, height);
+        const found = window.jsQR(pixels.data, width, height, { inversionAttempts: 'attemptBoth' });
+        if (found?.data) completeQrScan(found.data);
+      };
+      cameraAnimation = requestAnimationFrame(frame);
+    } catch (error) {
+      stopQrCamera();
+      const message = error?.name === 'NotAllowedError' ? 'Камераға рұқсат берілмеді. Браузер баптауынан рұқсат бер.' :
+        error?.name === 'NotFoundError' ? 'Құрылғыдан камера табылмады.' :
+        'Камера ашылмады. Басқа қолданба камераны қолданып тұрмағанын тексер.';
+      feedback(message, true, 'pairFeedback');
+    }
+  }
+  $('startQrCamera').onclick = startQrCamera;
+  $('stopQrCamera').onclick = stopQrCamera;
+  document.addEventListener('visibilitychange', () => { if (document.hidden) stopQrCamera(); });
+  window.addEventListener('pagehide', stopQrCamera);
+
   function tab(id) {
+    if (id !== 'connection' && cameraStream) stopQrCamera();
     document.querySelectorAll('.page').forEach(page => { page.hidden = page.id !== id; });
     document.querySelectorAll('.nav').forEach(button => {
       button.classList.toggle('active', button.dataset.tab === id);
