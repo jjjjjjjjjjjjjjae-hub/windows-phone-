@@ -11,22 +11,6 @@
   let connected = false, mode = 'text', image = null, last = null, sequence = 0, busy = false;
   const pending = new Map(), historyItems = [];
   const effects = window.BailanysEffects;
-  const sky = $('stellarSky');
-  if (sky) {
-    let seed = 5471;
-    const rand = () => { seed = (Math.imul(1664525, seed) + 1013904223) >>> 0; return seed / 4294967296; };
-    const frag = document.createDocumentFragment();
-    for (let i=0; i<48; i++) {
-      const star=document.createElement('i');
-      star.style.setProperty('--x',(4+rand()*92).toFixed(2)+'%');
-      star.style.setProperty('--y',(3+rand()*91).toFixed(2)+'%');
-      star.style.setProperty('--d',(0.8+rand()*2.1).toFixed(2)+'px');
-      star.style.setProperty('--t',(3+rand()*5).toFixed(2)+'s');
-      star.style.setProperty('--delay',(-rand()*8).toFixed(2)+'s');
-      frag.append(star);
-    }
-    sky.append(frag);
-  }
   const navigation = document.querySelector('nav');
   const sidebar = document.querySelector('.sidebar');
   let pairingLink = '';
@@ -270,47 +254,13 @@
   // Keep the camera overlay outside the hidden pairing form on the cosmic screen.
   if (browser && platform === 'android') $('connection').appendChild($('cameraArea'));
   $('startQrCamera').onclick = startQrCamera;
-  function cosmicPair() {
+  $('cosmicScan').onclick = () => {
     if (connected) return;
-    if (platform === 'android') { startQrCamera(); return; }
-    const pair = $('windowsPair');
-    pair.classList.add('cosmic-pair-open');
-  }
-  // Deterministic, lightweight twinkles animate independently of the reference image.
-  const starfield = $('cosmicStarfield');
-  if (starfield) {
-    let seed = 20261027;
-    const random = () => { seed = (1664525 * seed + 1013904223) >>> 0; return seed / 4294967296; };
-    const stars = document.createDocumentFragment();
-    for (let i = 0; i < 34; i++) {
-      const dot = document.createElement('i');
-      const x = 5 + random() * 90;
-      const y = 3 + random() * 77;
-      dot.style.left = x.toFixed(2) + '%';
-      dot.style.top = y.toFixed(2) + '%';
-      dot.style.setProperty('--delay', (-random() * 9).toFixed(2) + 's');
-      dot.style.setProperty('--duration', (3 + random() * 5).toFixed(2) + 's');
-      dot.style.setProperty('--size', (1 + random() * 2.3).toFixed(2) + 'px');
-      stars.appendChild(dot);
-    }
-    starfield.appendChild(stars);
-  }
-  $('cosmicScan').onclick = cosmicPair;
-  $('novaScanAction').onclick = cosmicPair;
-  $('novaCodeAction').onclick = () => {
-    if (connected) return;
-    $('androidPair').classList.add('nova-code-open');
+    startQrCamera();
   };
-  $('novaCodeClose').onclick = () => $('androidPair').classList.remove('nova-code-open');
-  $('novaDisconnect').onclick = () => $('disconnectButton').click();
   $('cosmicClipboard').onclick = () => tab('clipboard');
-  $('cosmicDevicesTab').onclick = cosmicPair;
+  $('cosmicDevicesTab').onclick = () => { if (!connected) startQrCamera(); };
   $('cosmicHistory').onclick = () => tab('history');
-  $('closeCosmicPair').onclick = () => $('windowsPair').classList.remove('cosmic-pair-open');
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') $('windowsPair').classList.remove('cosmic-pair-open');
-    if (e.key === 'Escape') $('androidPair').classList.remove('nova-code-open');
-  });
 
   $('stopQrCamera').onclick = stopQrCamera;
   document.addEventListener('visibilitychange', () => { if (document.hidden) stopQrCamera(); });
@@ -318,8 +268,6 @@
 
   function tab(id) {
     if (id !== 'connection' && cameraStream) stopQrCamera();
-    if (id !== 'connection') $('windowsPair').classList.remove('cosmic-pair-open');
-    if (id !== 'connection') $('androidPair').classList.remove('nova-code-open');
     document.body.classList.toggle('cosmic-active', browser && platform === 'android' && id === 'connection');
     document.querySelectorAll('.page').forEach(page => { page.hidden = page.id !== id; });
     document.querySelectorAll('.nav').forEach(button => {
@@ -336,7 +284,6 @@
 
   function renderPlatform(value) {
     platform = value;
-    if (document.querySelector('#connection')?.hidden === false) document.body.classList.toggle('cosmic-active', browser && platform === 'android');
     document.body.dataset.platform = platform;
     const phone = platform === 'android';
     $('senderPanel').hidden = !phone;
@@ -368,13 +315,6 @@
     if (!connected) connectedPhone = { name: platform === 'android' ? 'Ноутбук' : 'Телефон', os: platform === 'android' ? 'Ноутбук' : 'Телефон' };
     drawConnectedDevices();
     document.body.dataset.connected = String(connected);
-    if ($('novaConnectionLabel')) $('novaConnectionLabel').textContent = connected ? 'Онлайн' : 'Қосылмаған';
-    if ($('novaScanAction')) $('novaScanAction').hidden = connected;
-    if ($('novaCodeAction')) $('novaCodeAction').hidden = connected;
-    if ($('novaDisconnect')) $('novaDisconnect').hidden = !connected;
-    if ($('cosmicScan')) $('cosmicScan').setAttribute('aria-label', connected ? 'Құрылғы қосылған' : 'Ноутбуктің QR-кодын камерамен сканерлеу');
-    if (connected) $('androidPair').classList.remove('nova-code-open');
-    if ($('stellarLinkText')) $('stellarLinkText').textContent = connected ? 'ҚҰРЫЛҒЫ ҚОСЫЛДЫ' : 'ҚОСЫЛУДЫ КҮТУДЕ';
     if (!connected) effects?.reset();
     const device = data.deviceName || (platform === 'windows' ? 'Телефон' : 'Ноутбук');
     $('deviceName').textContent = connected ? device : 'Құрылғы қосылмаған';
@@ -638,7 +578,6 @@
 
   document.querySelectorAll('.nav').forEach(button => { button.onclick = () => tab(button.dataset.tab); });
   $('openConnection').onclick = () => tab('connection');
-  $('stellarHistoryGo').onclick = () => tab('clipboard');
   window.addEventListener('resize', arrangeNavigation);
   if (browser) {
     document.body.classList.add('browser-preview');
