@@ -10,8 +10,8 @@
   function reset() {
     if (active) return;
     stage.classList.remove('is-delivered');
-    caption.textContent = 'Қашықтық — бір қимыл.';
-    detail.textContent = 'Кішкентай әрекет. Әдемі ауысу.';
+    caption.textContent = 'Бір қимыл. Екінші экран.';
+    detail.textContent = 'Сурет те, мәтін де бір жолмен жетеді.';
   }
 
   function receive(element) {
@@ -28,7 +28,7 @@
     active = true;
     stage.classList.remove('is-delivered');
     stage.classList.add('is-sending');
-    caption.textContent = type === 'image' ? 'Мың бөлшек. Бір бағыт.' : 'Ойың жолға шықты.';
+    caption.textContent = type === 'image' ? 'Сурет бөлшектеніп жетеді.' : 'Мәтін жолға шықты.';
     detail.textContent = 'Келесі экранға қарай…';
     const source = type === 'image' ? document.getElementById('imagePreview') : document.querySelector('.editor');
     if (type === 'image' && source && !source.hidden && !source.complete) {
@@ -129,8 +129,8 @@
       if (context) context.clearRect(0, 0, canvas.width, canvas.height);
       source?.classList.remove('image-sending');
       stage.classList.remove('is-sending'); stage.classList.add('is-delivered');
-      caption.textContent = 'Вуаля. Келесі экранда.';
-      detail.textContent = 'Кішкентай әрекет. Жаңа сезім.';
+      caption.textContent = 'Келесі экранға жетті.';
+      detail.textContent = 'Тасымал аяқталды.';
       active = false;
     }
   }
