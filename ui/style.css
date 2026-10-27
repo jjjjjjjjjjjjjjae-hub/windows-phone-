@@ -141,3 +141,16 @@ body[data-platform=android] .mobile-brand .brand-mark.animated-infinity{width:17
 .connected-device-live{color:#bde8a1;font-size:11px;white-space:nowrap;flex-shrink:0}
 @media(max-width:900px){.connected-devices{max-width:616px;width:calc(100% - 44px);margin:8px auto}.connected-devices-header h2{font-size:17px}}
 @media(max-width:480px){.connected-devices{padding:15px}.connected-device-row,.connected-device-empty{padding:13px;gap:10px}.connected-device-phone-icon,.connected-device-empty-icon{width:40px;height:44px;font-size:28px}.connected-device-live{font-size:9px}.connected-device-info strong,.connected-device-empty strong{font-size:11px}.connected-device-info span,.connected-device-empty p{font-size:9px}}
+
+/* Layout cleanup: the device card belongs inside the Devices tab only. */
+#connection>.connected-devices{width:100%;max-width:620px;margin:24px 0 20px;padding:18px 20px}
+body[data-connected="true"] #connection #androidPair,
+body[data-connected="true"] #connection #windowsPair,
+body[data-connected="true"] #connection .page-connection-intro{display:none}
+body[data-connected="true"] #connection>.form-note{display:none}
+@media(max-width:600px){
+ #connection>.connected-devices{width:100%;max-width:none;margin:20px 0 16px;padding:15px}
+ #connection .connected-devices-header{gap:8px;flex-wrap:wrap}
+ #connection .connected-device-row{flex-wrap:wrap}
+ #connection .connected-device-live{margin-left:auto}
+}
