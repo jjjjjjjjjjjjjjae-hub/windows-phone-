@@ -51,6 +51,14 @@
       if (!allowed) { next.send({ t: 'rejected' }); setTimeout(() => next.close(), 300); return; }
       authenticated = true;
       next.send({ t: 'accepted' });
+      // Share the laptop's general platform after the user approves pairing.
+      // Browsers cannot reveal the computer's personal device/host name.
+      const ua = navigator.userAgent || '';
+      const os = /Windows/i.test(ua) ? 'Windows' :
+        /Macintosh|Mac OS X/i.test(ua) ? 'macOS' :
+        /Linux/i.test(ua) ? 'Linux' : 'Ноутбук';
+      const name = os === 'Ноутбук' ? 'Ноутбук' : os + ' ноутбук';
+      next.send({ t: 'device-info', name, os });
       status(true);
       report('Телефон қосылды. Мәтін мен суретті қабылдауға дайын.');
     });
@@ -75,11 +83,12 @@
       return;
     }
     if (!authenticated) return;
-    if (data.t === 'device-info' && role === 'windows') {
-      // The laptop only trusts metadata from its approved WebRTC channel.
-      const name = typeof data.name === 'string' ? data.name.slice(0, 60) : 'Телефон';
-      const os = typeof data.os === 'string' ? data.os.slice(0, 30) : 'Телефон';
-      hooks.onDevice?.({ name: name || 'Телефон', os: os || 'Телефон' });
+    if (data.t === 'device-info') {
+      // Only accept peer details through the approved, encrypted connection.
+      const fallback = role === 'windows' ? 'Телефон' : 'Ноутбук';
+      const name = typeof data.name === 'string' ? data.name.slice(0, 60) : fallback;
+      const os = typeof data.os === 'string' ? data.os.slice(0, 30) : fallback;
+      hooks.onDevice?.({ name: name || fallback, os: os || fallback });
       return;
     }
     if (data.t === 'begin' && role === 'windows') {
