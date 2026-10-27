@@ -202,8 +202,22 @@ body[data-platform="android"] .primary-nav {
   box-shadow: 0 -15px 38px rgba(4, 7, 17, .45), inset 0 1px rgba(255, 255, 255, .04);
 }
 body[data-platform="android"] .nav.active {
-  background: radial-gradient(ellipse 75% 73% at 50% 13%, rgba(168, 143, 255, .36), transparent 84%);
+  isolation: isolate;
+  background: transparent;
   color: #f6f0ff;
+  box-shadow: none;
+}
+body[data-platform="android"] .nav.active::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -15px 4% -4px;
+  width: auto;
+  height: auto;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 23%, rgba(178, 145, 255, .49), rgba(121, 107, 229, .18) 38%, transparent 72%);
+  filter: blur(7px);
+  box-shadow: none;
 }
 body[data-platform="android"] .nav.active::after { display: none; }
 body[data-platform="android"] .nav.active svg { filter: drop-shadow(0 0 8px rgba(185, 156, 255, .7)); }
