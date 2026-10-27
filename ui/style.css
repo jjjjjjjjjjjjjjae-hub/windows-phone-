@@ -77,47 +77,48 @@ body[data-platform=windows] .preview-modes,body[data-platform=android] .preview-
 .camera-help{max-width:560px;min-height:24px;color:#c7bbdc;font-size:11px;line-height:1.7;margin:12px 0 16px}
 
 
-/* Infinity identity — cinematic animated purple light circulating along the symbol. */
+/* One original infinity PHOTO; light flows across it. WINDOWS label stays in place. */
 body .brand-mark.animated-infinity,
-body[data-platform] .mobile-brand .brand-mark.animated-infinity {
-  position:relative;display:block;width:210px;height:64px;max-width:none;
-  isolation:isolate;overflow:hidden;border-radius:14px;flex-shrink:0;
-  background:radial-gradient(ellipse at 45% 50%,#49306e70,#0b0911 80%);
-  border:1px solid #a88cff38;box-shadow:0 0 17px #9f72ec25;
+body[data-platform] .mobile-brand .brand-mark.animated-infinity{
+ position:relative;display:block;overflow:hidden;isolation:isolate;
+ width:100%;height:65px;max-width:none;border-radius:12px;flex-shrink:0;
+ background:#13101e;border:1px solid #ac8cff35;box-shadow:0 0 18px #9b7cff18;
 }
 body .brand-mark.animated-infinity img{
-  position:absolute;inset:0;width:100%;height:100%;object-fit:fill;
-  opacity:.23;filter:grayscale(1) sepia(1) saturate(4) hue-rotate(212deg);
+ position:absolute;inset:0;display:block;width:100%;height:100%;
+ object-fit:fill;opacity:1;
+ filter:grayscale(1) sepia(1) saturate(3) hue-rotate(213deg) brightness(1.05);
+ animation:infinity-photo-pulse 4s ease-in-out infinite;
 }
-.infinity-neon{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;}
-.infinity-neon-base,.infinity-neon-trail{
-  fill:none;stroke-linecap:round;stroke-linejoin:round;
+body .brand-mark.animated-infinity .infinity-reflection{
+ position:absolute;inset:-75% -55%;pointer-events:none;
+ background:linear-gradient(105deg,transparent 34%,#c7acff05 44%,#e8d8ff65 50%,#bea1ff08 56%,transparent 66%);
+ transform:translateX(-75%);mix-blend-mode:screen;
+ animation:infinity-photo-shine 3.5s ease-in-out infinite;
 }
-.infinity-neon-base{stroke:#9874ec;stroke-width:3.4;opacity:.58;filter:drop-shadow(0 0 4px #ab81ff);}
-.infinity-neon-trail{
-  stroke:url(#infinity-flow-gradient);stroke-width:6.3;
-  stroke-dasharray:20 80;stroke-dashoffset:0;
-  filter:drop-shadow(0 0 3px #f2e6ff) drop-shadow(0 0 9px #a57dff);
-  animation:infinity-travel 2.9s linear infinite;
+@keyframes infinity-photo-pulse{0%,100%{filter:grayscale(1) sepia(1) saturate(3) hue-rotate(213deg) brightness(.95)}50%{filter:grayscale(1) sepia(1) saturate(4) hue-rotate(213deg) brightness(1.22)}}
+@keyframes infinity-photo-shine{0%,10%{transform:translateX(-75%)}75%,100%{transform:translateX(75%)}}
+/* Desktop: sidebar logo grows toward the unmodified WINDOWS label. */
+@media(min-width:901px){
+ body[data-platform=windows] .sidebar{overflow:visible;z-index:2}
+ body[data-platform=windows] .sidebar .brand{display:block;position:relative}
+ body[data-platform=windows] .sidebar .brand .brand-mark.animated-infinity{
+   width:calc(236px + 30vw);max-width:640px;height:65px;
+ }
+ body[data-platform=windows] .sidebar .brand-tagline{display:block;margin-top:10px}
 }
-.infinity-reflection{
-  position:absolute;inset:-55% -35%;pointer-events:none;
-  background:linear-gradient(115deg,transparent 37%,#ddc1ff00 45%,#dcbcff24 51%,transparent 58%);
-  transform:translateX(-65%);animation:infinity-glint 5.4s ease-in-out infinite;
+/* Compact view: logo fills available space; WINDOWS stays at its original right edge. */
+@media(max-width:900px){
+ body[data-platform=windows] header{justify-content:space-between;gap:10px}
+ body[data-platform=windows] .mobile-brand{min-width:0;flex:1;display:flex;align-items:center}
+ body[data-platform=windows] .mobile-brand .brand-mark.animated-infinity{width:100%;height:58px}
+ body[data-platform=windows] header .platform{margin-left:0;flex-shrink:0}
 }
-@keyframes infinity-travel{to{stroke-dashoffset:-100;}}
-@keyframes infinity-glint{0%,18%{transform:translateX(-65%);}58%,100%{transform:translateX(65%);}}
-body[data-platform=windows] header{justify-content:flex-start;gap:10px}
-body[data-platform=windows] .mobile-brand{display:flex;flex-shrink:0;align-items:center}
-body[data-platform=windows] .mobile-brand .brand-mark.animated-infinity{
-  width:clamp(190px,24vw,270px);height:67px;
-}
-body[data-platform=windows] header .platform{margin-left:0}
-body[data-platform=android] .mobile-brand .brand-mark.animated-infinity{width:174px;height:54px}
+body[data-platform=android] .mobile-brand .brand-mark.animated-infinity{width:172px;height:51px}
 @media(max-width:480px){
-  body[data-platform=windows] .mobile-brand .brand-mark.animated-infinity{width:187px;height:56px}
-  body[data-platform=android] .mobile-brand .brand-mark.animated-infinity{width:148px;height:48px}
+ body[data-platform=android] .mobile-brand .brand-mark.animated-infinity{width:148px;height:46px}
 }
 @media(prefers-reduced-motion:reduce){
- .infinity-neon-trail,.infinity-reflection{animation:none!important}
+ body .brand-mark.animated-infinity img,
+ body .brand-mark.animated-infinity .infinity-reflection{animation:none!important}
 }
