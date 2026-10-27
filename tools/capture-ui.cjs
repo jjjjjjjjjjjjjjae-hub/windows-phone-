@@ -51,6 +51,7 @@ const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css
     assert.equal(await page.locator('#receivedContent').innerText(), text, 'Text arrives unchanged');
     assert.equal(await page.locator('#receivedContent script').count(), 0, 'Received text stays text');
     await page.locator('#copyAgain').click();
+    await page.waitForFunction(() => document.getElementById('receiveBadge').textContent === 'Буферге көшірілді');
     assert.equal(await page.evaluate(() => navigator.clipboard.readText()), text, 'Copy writes the clipboard');
     await page.setViewportSize({ width: 1130, height: 900 });
     await page.screenshot({ path: path.join(output, 'windows.png'), fullPage: true });
@@ -72,6 +73,7 @@ const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css
     await page.locator('#receivedContent img').waitFor({ state: 'visible' });
     assert.equal(await page.locator('#receivedContent img').evaluate(img => img.naturalWidth), 100);
     await page.locator('#copyAgain').click();
+    await page.waitForFunction(() => document.getElementById('receiveBadge').textContent === 'Буферге көшірілді');
     assert(await page.evaluate(async () => (await navigator.clipboard.read()).some(item => item.types.includes('image/png'))), 'PNG can be copied');
 
     await page.locator('#previewAndroid').click();
