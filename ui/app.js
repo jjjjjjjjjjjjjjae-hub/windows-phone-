@@ -260,6 +260,25 @@
     const pair = $('windowsPair');
     pair.classList.add('cosmic-pair-open');
   }
+  // Deterministic, lightweight twinkles animate independently of the reference image.
+  const starfield = $('cosmicStarfield');
+  if (starfield) {
+    let seed = 20261027;
+    const random = () => { seed = (1664525 * seed + 1013904223) >>> 0; return seed / 4294967296; };
+    const stars = document.createDocumentFragment();
+    for (let i = 0; i < 34; i++) {
+      const dot = document.createElement('i');
+      const x = 5 + random() * 90;
+      const y = 3 + random() * 77;
+      dot.style.left = x.toFixed(2) + '%';
+      dot.style.top = y.toFixed(2) + '%';
+      dot.style.setProperty('--delay', (-random() * 9).toFixed(2) + 's');
+      dot.style.setProperty('--duration', (3 + random() * 5).toFixed(2) + 's');
+      dot.style.setProperty('--size', (1 + random() * 2.3).toFixed(2) + 'px');
+      stars.appendChild(dot);
+    }
+    starfield.appendChild(stars);
+  }
   $('cosmicScan').onclick = cosmicPair;
   $('cosmicClipboard').onclick = () => tab('clipboard');
   $('cosmicDevicesTab').onclick = cosmicPair;
@@ -276,7 +295,7 @@
   function tab(id) {
     if (id !== 'connection' && cameraStream) stopQrCamera();
     if (id !== 'connection') $('windowsPair').classList.remove('cosmic-pair-open');
-    document.body.classList.toggle('cosmic-active', browser && id === 'connection');
+    document.body.classList.toggle('cosmic-active', browser && platform === 'android' && id === 'connection');
     document.querySelectorAll('.page').forEach(page => { page.hidden = page.id !== id; });
     document.querySelectorAll('.nav').forEach(button => {
       button.classList.toggle('active', button.dataset.tab === id);
@@ -292,7 +311,7 @@
 
   function renderPlatform(value) {
     platform = value;
-    if (document.querySelector('#connection')?.hidden === false) document.body.classList.toggle('cosmic-active', browser);
+    if (document.querySelector('#connection')?.hidden === false) document.body.classList.toggle('cosmic-active', browser && platform === 'android');
     document.body.dataset.platform = platform;
     const phone = platform === 'android';
     $('senderPanel').hidden = !phone;
