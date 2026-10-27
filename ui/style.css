@@ -32,3 +32,25 @@ body[data-platform=windows] .preview-modes,body[data-platform=android] .preview-
 #onlineApproval p{font-size:13px;color:#bfb5d7;line-height:1.8;margin:0 0 20px}
 #onlineApproval .dialog-actions{display:flex;justify-content:flex-end;gap:10px}
 @media(max-width:480px){body[data-platform] .mobile-brand .brand-mark.gold-brand{width:120px;height:43px}body .image-picker.has-image img{aspect-ratio:16/10}}
+
+
+/* QR-based pairing, matching the violet glass aesthetic. */
+.qr-pair-card{max-width:590px;padding:30px 26px;background:radial-gradient(ellipse at 50% 0%,#a37dff16,transparent 60%),linear-gradient(150deg,#211b30,#171922);border-color:#bda0ff47}
+.qr-pair-card .qr-topline{display:flex;align-items:center;justify-content:center;gap:9px;color:#bca9f4;font-size:10px;letter-spacing:2px;font-weight:650}
+.qr-icon{font-size:27px;line-height:1}
+.qr-pair-card h2{font-size:clamp(18px,3vw,24px);margin:13px 0 8px;color:#f5f0ff;letter-spacing:-.6px}
+.qr-pair-card>p{font-size:11px;line-height:1.8;color:#aba4c0;max-width:360px;margin:0 auto}
+.qr-shell{width:264px;height:264px;border-radius:20px;padding:16px;margin:25px auto 12px;background:#fff;box-shadow:0 0 0 1px #d2bfff55,0 16px 50px #0005,0 0 42px #bba0ff20;display:flex;align-items:center;justify-content:center}
+.pair-qr{width:232px;height:232px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.pair-qr img,.pair-qr canvas{width:232px!important;height:232px!important;display:block;margin:0;image-rendering:pixelated}
+.qr-loading{font-size:12px;color:#5c4c78}
+.qr-pair-card .qr-helper{font-size:10px;color:#c4b8dc;margin-bottom:19px}
+.qr-divider{max-width:340px;display:flex;align-items:center;gap:10px;margin:20px auto;color:#7e738f;font-size:9px;letter-spacing:1.5px}
+.qr-divider:before,.qr-divider:after{content:"";height:1px;background:#ffffff17;flex:1}
+.qr-code-label{font-size:9px;color:#9286a6;letter-spacing:1.5px}
+.qr-pair-card .online-code{margin:8px auto 17px;font-size:clamp(13px,2.4vw,20px);letter-spacing:1.1px;color:#e2d3ff}
+.qr-copy-button{display:inline-flex;align-items:center;gap:8px;margin-bottom:19px}
+.qr-pair-card .qr-safety{max-width:390px;font-size:10px;color:#8c829c}
+.phone-qr-tip{display:flex;align-items:flex-start;gap:12px;padding:15px 17px;border:1px solid #bfa5ff30;border-radius:13px;background:#bca0ff0a;font-size:12px;line-height:1.7;color:#bfb1d8;margin:22px 0 12px;max-width:560px}
+.phone-qr-tip span{color:#c5adff;font-size:24px;line-height:1}
+@media(max-width:480px){.qr-pair-card{padding:24px 12px}.qr-shell{width:246px;height:246px;padding:12px}.pair-qr,.pair-qr img,.pair-qr canvas{width:222px!important;height:222px!important}}
