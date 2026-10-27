@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
+const sharp = require('sharp');
 
 const root = path.resolve(__dirname, '..');
 const output = path.join(root, 'docs/screenshots');
@@ -114,15 +115,24 @@ window.Peer = class {
     assert.equal(await laptop.locator('#receivedContent script').count(), 0);
     await laptop.locator('#copyAgain').click();
     assert.equal(await laptop.evaluate(() => navigator.clipboard.readText()), text);
+    await mobile.screenshot({ path: path.join(output, 'android-clipboard.png'), fullPage: true, animations: 'disabled' });
+    await laptop.screenshot({ path: path.join(output, 'windows-clipboard.png'), fullPage: true, animations: 'disabled' });
+    await mobile.locator('#imageTab').click();
+    const png = await sharp({ create: { width: 80, height: 48, channels: 3, background: '#9276f7' } }).png().toBuffer();
+    await mobile.locator('#browserImageInput').setInputFiles({ name: 'sample.png', mimeType: 'image/png', buffer: png });
+    await mobile.locator('#sendButton').click();
+    await laptop.waitForFunction(() => document.querySelector('#receivedContent img')?.naturalWidth === 80);
+    await laptop.locator('#copyAgain').click();
+    assert(await laptop.evaluate(async () => (await navigator.clipboard.read()).some(item => item.types.includes('image/png'))));
     await mobile.locator('.nav[data-tab="history"]').click();
-    assert.equal(await mobile.locator('.history-item').count(), 1);
+    assert.equal(await mobile.locator('.history-item').count(), 2);
     await mobile.setViewportSize({ width: 320, height: 700 });
     assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'No horizontal overflow on narrow phones');
     await mobile.locator('.nav[data-tab="connection"]').click();
     await mobile.locator('#disconnectButton').click();
     await laptop.waitForFunction(() => document.body.dataset.connected === 'false');
     assert.deepEqual(errors, []);
-    console.log('Passed: desktop and phone layouts, navigation, QR code, approval, text transfer, safe rendering, clipboard, history, disconnect, narrow viewport.');
+    console.log('Passed: desktop and phone layouts, navigation, QR code, approval, text/image transfer, safe rendering, clipboard, history, disconnect, narrow viewport.');
     await context.close();
   } finally {
     await browser?.close();
