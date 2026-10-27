@@ -211,3 +211,22 @@ body.cosmic-active .cosmic-nav-hits button:focus-visible{outline:2px solid #e8c8
 @media(prefers-reduced-motion:no-preference){body.cosmic-active .cosmic-space{animation:cosmic-breathe 8s ease-in-out infinite alternate}body.cosmic-active .cosmic-infinity-svg{animation:cosmic-float 5s ease-in-out infinite alternate}}
 @keyframes cosmic-breathe{from{opacity:.7}to{opacity:1}}
 @keyframes cosmic-float{from{transform:translateY(-2px)}to{transform:translateY(3px)}}
+
+/* v17: Use the identical source artwork with real, invisible hit areas. */
+body.cosmic-active{background:#01020e!important;overflow-x:hidden}
+body.cosmic-active .sidebar,body.cosmic-active .preview-toolbar,body.cosmic-active .ambient{display:none!important}
+body.cosmic-active .app,body.cosmic-active main{width:100%;min-height:100svh}
+body.cosmic-active #connection{max-width:none!important;padding:0!important;margin:0!important;overflow:hidden!important}
+body.cosmic-active #cosmicDevices{display:block!important;position:relative!important;width:min(100vw,calc(100svh * 853 / 1843))!important;height:100svh!important;min-height:0!important;max-height:none!important;aspect-ratio:853/1843!important;margin:0 auto!important;overflow:hidden!important;background:#020414!important;isolation:isolate}
+body.cosmic-active #cosmicDevices .cosmic-photo{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:fill;pointer-events:none;user-select:none}
+body.cosmic-active #cosmicDevices .cosmic-scan-hit{position:absolute;left:30%;top:24.4%;width:40%;height:9.5%;z-index:5;background:transparent!important;border:0!important;border-radius:45%;padding:0;box-shadow:none!important;filter:none!important;cursor:pointer;touch-action:manipulation}
+body.cosmic-active #cosmicDevices .cosmic-nav-hits{position:absolute!important;left:5%!important;right:5%!important;top:auto!important;bottom:7.55%!important;height:8.1%!important;display:flex!important;z-index:5;background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;padding:0!important;border-radius:0!important}
+body.cosmic-active #cosmicDevices .cosmic-nav-hits button{flex:1!important;display:block!important;position:relative;min-width:0;margin:0;padding:0!important;background:transparent!important;border:0!important;border-radius:12px!important;box-shadow:none!important;cursor:pointer}
+body.cosmic-active #cosmicDevices .cosmic-nav-hits button:after{display:none!important}
+body.cosmic-active #cosmicDevices .cosmic-nav-hits button:focus-visible,body.cosmic-active #cosmicDevices .cosmic-scan-hit:focus-visible{outline:2px solid #f8cbff;outline-offset:-3px}
+body.cosmic-active #cosmicDevices .cosmic-connected-status{top:37%;left:12%;right:12%;z-index:4;padding:9px 10px;border-radius:20px;background:#070420aa;color:#e9dcff;font-size:clamp(10px,1.8vh,16px);box-shadow:0 0 25px #a947ff4d}
+body.cosmic-active #connection>#windowsPair.cosmic-pair-open{display:flex!important;position:fixed;z-index:90;inset:0;overflow:auto;padding:54px 16px 24px;align-items:center;justify-content:flex-start;flex-direction:column;background:#040313ed;backdrop-filter:blur(12px)}
+body.cosmic-active #windowsPair.cosmic-pair-open .pair-card{width:min(100%,520px);max-width:520px;flex-shrink:0;margin:0 auto}
+body.cosmic-active #windowsPair.cosmic-pair-open>.form-note{display:block}
+.cosmic-pair-close{display:none}
+body.cosmic-active #windowsPair.cosmic-pair-open .cosmic-pair-close{display:block;align-self:flex-end;position:sticky;top:0;z-index:91;width:40px;height:40px;margin:0 max(0px,calc((100vw - 520px)/2 - 24px)) 14px 0;border-radius:50%;border:1px solid #ddbbff4b;background:#25123a;color:white;font-size:22px}
