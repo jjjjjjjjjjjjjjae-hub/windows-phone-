@@ -251,6 +251,8 @@
   $('chooseQrPhoto').onclick = () => { $('qrImagePicker').value = ''; $('qrImagePicker').click(); };
   $('qrCameraCapture').onchange = event => scanQrImage(event.target.files?.[0]);
   $('qrImagePicker').onchange = event => scanQrImage(event.target.files?.[0]);
+  // Keep the camera overlay outside the hidden pairing form on the cosmic screen.
+  if (browser && platform === 'android') $('connection').appendChild($('cameraArea'));
   $('startQrCamera').onclick = startQrCamera;
   $('cosmicScan').onclick = () => {
     if (connected) return;
