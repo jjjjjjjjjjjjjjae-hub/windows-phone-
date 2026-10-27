@@ -230,3 +230,18 @@ body.cosmic-active #windowsPair.cosmic-pair-open .pair-card{width:min(100%,520px
 body.cosmic-active #windowsPair.cosmic-pair-open>.form-note{display:block}
 .cosmic-pair-close{display:none}
 body.cosmic-active #windowsPair.cosmic-pair-open .cosmic-pair-close{display:block;align-self:flex-end;position:sticky;top:0;z-index:91;width:40px;height:40px;margin:0 max(0px,calc((100vw - 520px)/2 - 24px)) 14px 0;border-radius:50%;border:1px solid #ddbbff4b;background:#25123a;color:white;font-size:22px}
+
+/* v18: Phone-only living cosmic effects. Never affect the Windows layout. */
+body.cosmic-active #cosmicDevices .cosmic-photo{z-index:0}
+body.cosmic-active #cosmicDevices .cosmic-motion-energy{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;z-index:1;pointer-events:none;opacity:.16;filter:drop-shadow(0 0 3px #d852ff);mix-blend-mode:screen}
+body.cosmic-active #cosmicDevices .cosmic-aurora{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.3;background:radial-gradient(ellipse 26% 9% at 48% 29%,#dd7dff4d,transparent 70%),radial-gradient(ellipse 45% 5% at 50% 71%,#a746ff3a,transparent 80%);mix-blend-mode:screen}
+body.cosmic-active #cosmicDevices .cosmic-starfield{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+body.cosmic-active #cosmicDevices .cosmic-starfield i{display:block;position:absolute;width:var(--size);height:var(--size);border-radius:50%;background:#f2d8ff;box-shadow:0 0 4px 1px #995dff,0 0 10px #6830ff;opacity:.14;will-change:opacity}
+@media(prefers-reduced-motion:no-preference){
+ body.cosmic-active #cosmicDevices .cosmic-motion-energy{animation:cosmic-light-breath 6.4s ease-in-out infinite alternate}
+ body.cosmic-active #cosmicDevices .cosmic-aurora{animation:cosmic-aura-breath 7.8s ease-in-out infinite alternate}
+ body.cosmic-active #cosmicDevices .cosmic-starfield i{animation:cosmic-star-twinkle var(--duration) ease-in-out var(--delay) infinite alternate}
+}
+@keyframes cosmic-light-breath{from{opacity:.07;filter:drop-shadow(0 0 1px #b85bff)}to{opacity:.23;filter:drop-shadow(0 0 6px #de87ff)}}
+@keyframes cosmic-aura-breath{from{opacity:.12}to{opacity:.42}}
+@keyframes cosmic-star-twinkle{0%,16%{opacity:.07}70%,100%{opacity:.95}}
